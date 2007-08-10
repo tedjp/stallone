@@ -1,0 +1,325 @@
+Protocol compliance checklist.
+
+MUST directives
+
+3. Protocol and Packet Format
+
+   Any NAT-PMP
+   gateway implementing this version of the protocol, receiving a
+   packet with a version number other than 0, MUST return result code 1
+   (Unsupported Version).
+
+3.2 Determining the Public Address
+
+   If the result code is non-zero, the value of Public IP Address is
+   undefined (MUST be set to zero on transmission, and MUST be ignored
+   on reception).
+
+   The NAT gateway MUST fill in the "Seconds Since Start of Epoch" field
+   with the time elapsed since its port mapping table was initialized on
+   startup or reset for any other reason
+
+   Upon receiving the response packet, the client MUST check the source
+   IP address, and silently discard the packet if the address is not the
+   address of the gateway to which the request was sent.
+
+3.2.1 Announcing Address Changes
+
+   When the public IP address of the NAT changes, the NAT gateway MUST
+   send a gratuitous response to the link-local multicast address
+   224.0.0.1, port 5351 with the packet format above to notify clients
+   of the new public IP address.
+
+   Upon receiving a gratuitous address change announcement packet,
+   the client MUST check the source IP address, and silently discard
+   the packet if the address is not the address of the client's
+   current configured gateway.
+
+3.3 Creating a Mapping
+
+   The Reserved field MUST be set to zero on transmission and MUST
+   be ignored on reception.
+
+   The 'x' in the OP field MUST match what the client requested. Some
+   NAT gateways are incapable of creating a UDP port mapping without
+   also creating a corresponding TCP port mapping, and vice versa, and
+   these gateways MUST NOT implement NAT Port Mapping Protocol until
+   this deficiency is fixed. A NAT gateway which implements this
+   protocol MUST be able to create TCP-only and UDP-only port mappings. 
+
+   While a NAT gateway MUST NOT automatically create mappings for TCP
+   when the client requests UDP, and vice versa, the NAT gateway MUST
+   reserve the companion port so the same client can choose to map it
+   in the future. For example, if a client requests to map TCP port 80,
+   as long as the client maintains the lease for that TCP port mapping,
+   another client with a different IP address MUST NOT be able to
+   successfully acquire the mapping for UDP port 80.
+
+   The client normally requests the public port matching the private
+   port. If that public port is not available, the NAT gateway MUST
+   return a public port that is available or return an error code if
+   no ports are available.
+
+   The source address of the packet MUST be used for the private address
+   in the mapping.
+
+   The NAT gateway MUST fill in the "Seconds Since Start of Epoch" field
+   with the time elapsed since its port mapping table was initialized on
+   startup or reset for any other reason (see Section 3.6 "Seconds Since
+   Start of Epoch").
+
+   Upon receiving the response packet, the client MUST check the source
+   IP address, and silently discard the packet if the address is not the
+   address of the gateway to which the request was sent.
+
+3.4 Destroying a Mapping
+
+   A mapping may be destroyed in a variety of ways. If a client fails
+   to renew a mapping, then when its lifetime expires the mapping MUST
+   be automatically deleted.
+
+   A client requests explicit
+   deletion of a mapping by sending a message to the NAT gateway
+   requesting the mapping, with the Requested Lifetime in Seconds set
+   to 0. The requested public port MUST be set to zero by the client
+   on sending, and MUST be ignored by the gateway on reception.
+
+   When a mapping is destroyed successfully as a result of the client
+   explicitly requesting the deletion, the NAT gateway MUST send a
+   response packet which is formatted as defined in section 3.3
+   "Creating a Mapping". The response MUST contain a result code of 0,
+   the private port as indicated in the deletion request, a public port
+   of 0, and a lifetime of 0. The NAT gateway MUST respond to a request
+   to destroy a mapping that does not exist as if the request were
+   successful. This is because of the case where the acknowledgement is
+   lost, and the client retransmits its request to delete the mapping. 
+   In this case the second request to delete the mapping MUST return the
+   same response packet as the first request.
+
+   If the deletion request was unsuccessful, the response MUST contain a
+   non-zero result code and the requested mapping; the lifetime is
+   undefined (MUST be set to zero on transmission, and MUST be ignored
+   on reception). If the client attempts to delete a port mapping which
+   was manually assigned by some kind of configuration tool, the NAT
+   gateway MUST respond with a 'Not Authorized' error, result code 2.
+
+   A client can request the explicit deletion of all its UDP or TCP
+   mappings by sending the same deletion request to the NAT gateway
+   with public port, private port, and lifetime set to 0. A client MAY
+   choose to do this when it first acquires a new IP address in order to
+   protect itself from port mappings that were performed by a previous
+   owner of the IP address. After receiving such a deletion request,
+   the gateway MUST delete all its UDP or TCP port mappings (depending
+   on the opcode). The gateway responds to such a deletion request with
+   a response as described above, with the private port set to zero. If
+   the gateway is unable to delete a port mapping, for example, because
+   the mapping was manually configured by the administrator, the gateway
+   MUST still delete as many port mappings as possible, but respond with
+   a non-zero result code. The exact result code to return depends on
+   the cause of the failure. If the gateway is able to successfully
+   delete all port mappings as requested, it MUST respond with a result
+   code of 0.
+
+3.5 Result Codes
+
+   Clients MUST be able to properly handle result codes not defined in
+   this document. Undefined results codes MUST be treated as fatal
+   errors of the request.
+
+3.6 Seconds Since Start of Epoch
+
+   If the NAT gateway resets or loses the
+   state of its port mapping table, due to reboot, power failure, or any
+   other reason, it MUST reset its epoch time and begin counting SSSOE
+   from 0 again.
+
+   If the SSSOE in the newly received packet is
+   less than the client's conservative estimate by more than one second,
+   then the client concludes that the NAT gateway has undergone a reboot
+   or other loss of port mapping state, and the client MUST immediately
+   renew all its active port mapping leases as described in Section 3.7
+   "Recreating Mappings On NAT Gateway Reboot".
+
+3.7 Recreating Mappings On NAT Gateway Reboot
+
+   When the NAT gateway powers on or clears its port mapping
+   state as the result of a configuration change, it MUST reset the
+   epoch time and re-announce its IP address as described in Section
+   3.2.1 "Announcing Address Changes".
+
+   When a client renews its port mappings as the result of receiving
+   a packet where the "Seconds since start of epoch" field (SSSOE)
+   indicates that a reboot or similar loss of state has occurred,
+   the client MUST first delay by a random amount of time selected
+   with uniform random distribution in the range 0 to 5 seconds, and
+   then send its first port mapping request.
+
+3.8 NAT Gateways with NAT Function Disabled
+
+   A network device that is capable of NAT (and NAT-PMP), but is
+   currently configured not to perform that function, (e.g. it is
+   acting as a traditional IP router, forwarding packets without
+   modifying them), MUST NOT respond to NAT-PMP requests from clients,
+   or send spontaneous NAT-PMP address-change announcements.
+
+
+SHOULD directives
+
+3. Protocol and Packet Format
+   This protocol SHOULD only be used when the client determines that
+   its primary IPv4 address is in one of the private IP address ranges
+   defined in "Address Allocation for Private Internets" [RFC 1918].
+   This includes the address ranges 10/8, 172.16/12, and 192.168/16.
+
+3.1 Requests and Reponses
+   Clients machines SHOULD NOT issue multiple requests
+   simultaneously in parallel. If a client needs to perform multiple
+   requests (e.g. on boot, wake from sleep, network connection, etc.)
+   it SHOULD queue them and issue them serially one at a time.
+
+   If no
+   NAT-PMP response is received from the gateway after 250ms, the client
+   retransmits its request and waits 500ms. The client SHOULD repeat
+   this process with the interval between attempts doubling each time.
+   If, after sending its 9th attempt (and then waiting for 64 seconds),
+   the client has still received no response, then it SHOULD conclude
+   that this gateway does not support NAT Port Mapping Protocol and
+   MAY log an error message indicating this fact.
+
+3.2.1 Announcing Address Changes
+
+   To accommodate packet loss, the
+   NAT gateway SHOULD multicast 10 address change notifications.
+   The interval between the first two notifications SHOULD be 250ms,
+   and the interval between each subsequent notification SHOULD double.
+
+3.3 Creating a Mapping
+
+   The Requested Public Port SHOULD usually be set to the same value as
+   the local Private Port, or zero if the client has no preference for
+   what port is assigned.
+
+   After sending the port mapping request, the client then waits for the
+   NAT gateway to respond. If after 250ms, the gateway doesn't respond,
+   the client SHOULD re-issue its request as described above in Section
+   3.1 "Requests and Responses".
+
+   The NAT gateway SHOULD NOT accept mapping requests destined to the
+   NAT gateway's public IP address or received on its public network
+   interface.
+
+   The Port Mapping Lifetime is an unsigned integer in seconds. The NAT
+   gateway MAY reduce the lifetime from what the client requested. The
+   NAT gateway SHOULD NOT offer a lease lifetime greater than that
+   requested by the client.
+
+   The client SHOULD begin trying to renew the mapping halfway to expiry
+   time, like DHCP. The renewal packet should look exactly the same as
+   a request packet, except that the client SHOULD set the requested
+   public port to what the NAT gateway previously mapped, not what the
+   client originally requested.
+
+3.4 Destroying a Mapping
+
+   When a mapping is destroyed as a result of its lifetime expiring or
+   for any other reason, if the NAT gateway's internal state indicates
+   that there are still active TCP connections traversing that now-
+   defunct mapping, then the NAT gateway SHOULD send appropriately-
+   constructed TCP RST (reset) packets both to the local client and to
+   the remote peer on the Internet to terminate that TCP connection.
+
+3.5 Result Codes
+
+   If the result code is non-zero, the format of the packet following
+   the result code may be truncated. For example, if the client sends a
+   request to the server with an opcode of 17 and the server does not
+   recognize that opcode, the server SHOULD respond with a message where
+   the opcode is 17 + 128 and the result code is 5 (opcode not
+   supported). Since the server does not understand the format of
+   opcode 17, it may not know what to place after the result code. In
+   some cases, relevant data may follow the opcode to identify the
+   operation that failed. For example, a client may request a mapping
+   but that mapping may fail due to resource exhaustion. The server
+   SHOULD respond with the result code to indicate resource exhaustion
+   (4) followed by the requested port mapping so the client may identify
+   which operation failed.
+
+3.7 Recreating Mappings On NAT Gateway Reboot
+
+   Reception of this packet [address change announcement]  where
+   time has apparently gone backwards serves as a hint to clients
+   on the network that they SHOULD immediately send renewal packets
+   (to immediately recreate their mappings) instead of waiting until
+   the originally scheduled time for those renewals.
+
+3.8 NAT Gateways with NAT Function Disabled
+
+   If a network device not currently acting in the role of NAT gateway
+   receives UDP packets addressed to port 5351, it SHOULD respond
+   immediately with an "ICMP Port Unreachable" message
+
+4.3.2 NATs with Multiple Public IP Addresses
+
+   If a NAT maps private addresses to multiple public addresses,
+   then it SHOULD pick one of those addresses as the one it will
+   support for inbound connections, and for the purposes of this
+   protocol it SHOULD act as if that address were its only address.
+
+5. Security Considerations
+
+   Since allowing incoming connections is often a policy decision, any
+   NAT gateway implementing this protocol SHOULD have an administrative
+   mechanism to disable it.
+
+
+MAY directives
+
+3.1 Requests and Responses
+
+   If, after sending its 9th attempt (and then waiting for 64 seconds),
+   the client has still received no response, then it SHOULD conclude
+   that this gateway does not support NAT Port Mapping Protocol and
+   MAY log an error message indicating this fact.
+
+   As a performance optimization the client MAY record this information
+   [unavailability of NAT-PMP service]
+   and use it to suppress further attempts to use NAT-PMP
+
+3.3 Creating a Mapping
+
+   The Port Mapping Lifetime is an unsigned integer in seconds. The NAT
+   gateway MAY reduce the lifetime from what the client requested. The
+   NAT gateway SHOULD NOT offer a lease lifetime greater than that
+   requested by the client.
+
+3.4 Destroying a Mapping
+
+   In the common case where the gateway
+   device is a combined DHCP server and NAT gateway, when a client's
+   DHCP address lease expires, the gateway device MAY automatically
+   delete any mappings belonging to that client.
+
+   A client MAY also send an explicit packet to request deletion of a
+   mapping that is no longer needed.
+
+   A client can request the explicit deletion of all its UDP or TCP
+   mappings by sending the same deletion request to the NAT gateway
+   with public port, private port, and lifetime set to 0. A client MAY
+   choose to do this when it first acquires a new IP address in order to
+   protect itself from port mappings that were performed by a previous
+   owner of the IP address.
+
+3.7 Recreating Mappings On NAT Gateway Reboot
+
+   The NAT gateway MAY store mappings in persistent storage so when it
+   is powered off or rebooted, it remembers the port mapping state of
+   the network.
+
+
+RECOMMENDED directives
+
+3.3 Creating a Mapping
+
+   The RECOMMENDED Port Mapping Lifetime is 3600 seconds.
+
+# vim:sw=3:et

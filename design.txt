@@ -1,0 +1,5 @@
+avahi-natpmd must _not_ depend on avahi-daemon running. Sysadmins should be
+able to run natpmd without having to consider the security implications of
+regular avahi running, too.
+
+# vim:tw=79

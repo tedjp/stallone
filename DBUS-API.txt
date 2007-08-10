@@ -1,0 +1,36 @@
+
+
+/* The public API:
+ *
+ * is_natpm_necessary
+ *
+ * is_natpm_available
+ *
+ * get_public_address
+ *
+ * list_mappings
+ *
+ * create_mapping
+ *
+ * delete_mapping
+ *
+ *
+ * Signals / callbacks:
+ *
+ * created-mapping
+ *
+ * failed-mapping
+ *
+ * public-address-changed
+ *
+ * FUTURE callbacks: state-interrupted, state-restored
+ *
+ *
+ * Mapping states:
+ * * Requested (pending)
+ * * Active
+ * * Interrupted (avahi-daemon is trying to restore it)
+ * * Dead
+ *
+ *
+ */

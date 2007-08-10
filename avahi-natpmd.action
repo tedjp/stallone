@@ -1,0 +1,201 @@
+#!/bin/sh
+
+# $Id$
+#
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+
+set -e
+
+# XXX: These are not set in stone!
+#
+# Command line arguments:
+#   $1 action:
+#          PREPARE: Prepare the system for port forwarding
+#          CLEANUP: Remove any Avahi-added port forwarding infrastructure
+#                   (eg. Avahi-managed iptables tables)
+#          CLEAR:   Clear all port forwards
+#          ADD:     Add a specific forward
+#          REMOVE:  Remove a specific forward
+#
+#  PREPARE and CLEANUP require the following arguments:
+#     INTERFACE  MIN-PORT  MAX-PORT
+# eg. eth0       39000     40000
+#
+#  ADD and REMOVE share the same options:
+#     PROTOCOL  PUBLIC-PORT  DEST-ADDR     DEST-PORT
+# eg. TCP       9000         192.168.1.27  9000
+
+LANG=C # XXX: Might also need LANGUAGE and LC_* vars
+TABLE='AVAHI-NATPM'
+
+IPTABLES=`which iptables || true`
+if [ -z "$IPTABLES" ]; then
+    echo "Cannot find iptables (PATH=$PATH)" >&2
+    exit 1
+fi
+
+ipt_clear () {
+    # The first two lines of output are headings
+    numrules=$((`$IPTABLES -t nat -L $TABLE 2>/dev/null | wc -l` - 2))
+    while [ $numrules -gt 0 ]; do
+        $IPTABLES -t nat -D $TABLE 1
+        let numrules -= 1
+    done
+}
+
+# Validate the interface name exists
+validate_interface () {
+    local iface ifaces interface_exists
+
+    ifaces=`ifconfig -a | cut -d' ' -f1 | grep -v '^$'`
+    interface_exists=0
+
+    for iface in $ifaces; do
+        [ "$iface" = "$1" ] && interface_exists=1
+    done
+
+    if [ "$interface_exists" = "0" ]; then
+        echo "No such interface $1" >&2
+        return 1
+    fi
+}
+
+# Validate the ports are in the range 1-65535
+validate_ports () {
+    local port
+    for port in $1 $2; do
+        if [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+            echo "Invalid port number $port, must be in the range 1-65535" >&2
+            return 2
+        fi
+    done
+}
+
+ipt_cleanup () {
+    local iface minport maxport
+
+    ipt_clear
+
+    iface="$2"
+    minport="$3"
+    maxport="$4"
+
+    validate_interface "$iface" || return 2
+    validate_ports "$minport" "$maxport" || return 2
+
+    refcount=`$IPTABLES -t nat -L $TABLE 2>/dev/null | head -n 1 | sed -e 's,.*\([0-9]\+\) references.*,\1,'`
+    if [ -n "$refcount" ]; then # cmd success
+        if [ "$refcount" -gt 2 ]; then
+            echo Table $TABLE is referenced more than the expected two times >&2
+            exit 1
+        fi
+        # Delete references
+        $IPTABLES -t nat -D PREROUTING -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
+        $IPTABLES -t nat -D PREROUTING -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
+
+        # Delete table
+        $IPTABLES -t nat -X $TABLE
+    fi
+}
+
+ipt_prepare () {
+    local iface minport maxport
+
+    iface="$2"
+    minport="$3"
+    maxport="$4"
+
+    # Start with a clean slate
+    ipt_cleanup CLEANUP "$iface" "$minport" "$maxport"
+
+    # Set up
+    $IPTABLES -t nat -N $TABLE
+    $IPTABLES -t nat -A PREROUTING -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
+    $IPTABLES -t nat -A PREROUTING -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
+}
+
+ipt_act () {
+    # Expected args:
+    # ADD|REMOVE  TCP|UDP  public_port  dest_addr  dest_port
+    local action
+
+    if [ $# -ne 5 ]; then
+        echo "Incorrect number of args in command ($#), expected 5" >&2
+        return 2
+    fi
+
+    case "$1" in
+        ADD)
+            action=A ;;
+        REMOVE)
+            action=D ;;
+        *)
+            echo "Invalid action $1, expected ADD or REMOVE" >&2
+            return 2
+        ;;
+    esac
+
+    if [ "$2" != "TCP" ] && [ "$2" != "UDP" ]; then
+        echo "Invalid protocol argument $2, expected TCP or UDP" >&2
+        return 2
+    fi
+
+    if [ "$3" -lt 1 ] || [ "$3" -gt 65535 ]; then
+        echo "Invalid public port number $3, must be in the range 1-65535" >&2
+        return 2
+    fi
+
+    case "$4" in
+        *.*.*.*) ;;
+        *)
+            echo "Invalid destination address $4, it should be" >&2
+            echo "in dotted-decimal format." >&2
+            return 2
+        ;;
+    esac
+
+    if [ "$5" -lt 1 ] || [ "$5" -gt 65535 ]; then
+        echo "Invalid destination port number $5, must be in the range 1-65535" >&2
+        return 2
+    fi
+
+    $IPTABLES -t nat -$action $TABLE -p $2 --dport $3 -j DNAT --to $4:$5
+}
+
+case "$1" in
+    PREPARE)
+        ipt_prepare "$@"
+    ;;
+    CLEANUP)
+        ipt_cleanup "$@"
+    ;;
+    CLEAR)
+        ipt_clear
+    ;;
+    ADD|REMOVE)
+        ipt_act "$@"
+    ;;
+    *)
+        echo "Unknown command $1" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
+
+# vim: ts=4 sw=4 et syntax=sh ai

@@ -1,0 +1,43 @@
+//#include "common.h"
+
+message passing
+
+send:
+is_service_available (void)
+public_ip_req (void)
+map_request (proto, priv, req_pub, lifetime)
+
+recv:
+router_state_reset
+public_ip: addr
+map_created: proto, priv, pub, life
+is_service_available: true/false
+
+
+private_ops:
+determine_router
+
+
+request:
+priv_port
+magic_number
+
+response:
+magic_number
+public_port
+
+
+request:
+find_public_ip
+
+
+response:
+pub.
+
+create_map
+
+
+callback
+
+
+get_public_ip

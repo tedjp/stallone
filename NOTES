@@ -1,0 +1,44 @@
+Network Address Translation Port Mapping (NATPM) comes in multiple parts.
+
+SERVER
+
+The server provides actual port mapping, and is intended to be run on a device
+providing NAT ("the router").
+
+The server is implemented as a separate daemon in two parts. One part is a
+privileged helper that executes a pre-defined helper script. The helper
+script carries out the commands required to modify the system's port
+forwardings. On Linux, it executes iptables commands.
+
+Interfaces will be monitored for changes by communicating with an existing
+avahi-daemon.
+
+
+CLIENT
+
+The client 
+
+
+LIBRARY
+
+
+IMPLEMENTATION
+
+The implementation plan is split into ordered phases as follows.
+
+- Implementation of NAT-PMP server.
+- Implementation of NAT-PMP client in avahi-daemon. Interface exposed through
+  D-Bus.
+
+At this point there will be a working application set. The library API will
+hopefully be stable, however it is likely that it will change once UPnP
+support is added.
+
+
+FUTURE WORK
+
+- C Library for port mapping.
+- Implementation of UPnP client in avahi-daemon.
+
+
+ -- Ted Percival <ted@midg3t.net>  Fri, 23 Feb 2007 22:57:06 +1000
