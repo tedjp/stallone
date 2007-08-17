@@ -30,9 +30,9 @@ AM_CPPFLAGS = \
     -DAVAHI_NATPMD_CHROOT_DIR=\"$(localstatedir)/avahi-natpmd\" \
     -DAVAHI_PM_SOCKET=\"$(avahi_pm_socket)\" # XXX: Is this even used?
 
-sbin_PROGRAMS = avahi-natpmd
+sbin_PROGRAMS = stallone
 
-avahi_natpmd_SOURCES = \
+stallone_SOURCES = \
                        common.c common.h \
                        interface.c interface.h \
                        ipc.c ipc.h \
@@ -44,7 +44,7 @@ avahi_natpmd_SOURCES = \
                        worker.c worker.h \
                        # end of list
 
-avahi_natpmd_LDADD = \
+stallone_LDADD = \
                      $(LIBDAEMON_LIBS) -lcap \
                      $(top_builddir)/avahi-common/libavahi-common.a
 
