@@ -1603,7 +1603,7 @@ int main(int argc, char *argv[]) {
     if (parse_command_line(argc, argv) < 0)
         goto finish;
 
-    if (daemonize || use_syslog)
+    if (use_syslog)
        daemon_log_use = DAEMON_LOG_SYSLOG;
 
     if (modify_proc_title)
