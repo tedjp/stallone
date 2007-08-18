@@ -505,13 +505,15 @@ static void send_packet(AvahiNPPacket *pkt) {
 
     pkt->data.u32[1] = htonl(sssoe());
 
-#if 1 /* efficient */
+#if 0 /* noisy */
+# if 1 /* efficient */
     daemon_log(LOG_DEBUG, "Sending packet to %s: opcode[%hhu] result[%hu] ever_sent[%d]",
             ip4_addr_str(pkt->addr.sin_addr), pkt->data.common.opcode, pkt->data.common.result,
             pkt->ever_sent);
-#else /* ridiculously inefficient, but detailed */
+# else /* ridiculously inefficient, but detailed */
     daemon_log(LOG_DEBUG, "Sending packet %s", avahi_natpmp_pkt_dump(pkt));
     avahi_natpmp_pkt_dump_free();
+# endif
 #endif
 
     pkt->ever_sent = 1;
@@ -1399,8 +1401,10 @@ void update_timer(void) {
     if (next_retransmit_time(&next_retrans) != 0) {
         time_t next_retrans_sec;
 
+#if 0 /* noisy */
         daemon_log(LOG_DEBUG, "%s: next retransmit time is %ld (and %ld nsec)",
                 __FUNCTION__, next_retrans.tv_sec, next_retrans.tv_nsec);
+#endif
 
         /* XXX: We ignore partial seconds from the
          * retransmission list for simplicity. It's bad.
@@ -1454,6 +1458,9 @@ static int go_daemon(void) {
     }
 
     wrote_pid_file = !daemon_pid_file_create();
+
+    daemon_log(LOG_DEBUG, "%s: Main process running with pid %d",
+            __FUNCTION__, getpid());
 
     pid = daemon_fork();
     if (-1 == pid) {

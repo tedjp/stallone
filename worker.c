@@ -30,6 +30,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <libdaemon/dlog.h>
 #include <avahi-common/fdutil.h>
@@ -101,6 +103,9 @@ int worker(int sock) {
     /* XXX: Audit to ensure no extra sockets are passed to the child */
 
     avahi_set_proc_title(argv0, "%s: iptables helper", argv0);
+
+    daemon_log(LOG_DEBUG, "%s: Worker process running with pid %d",
+            __FUNCTION__, getpid());
 
     while ((siz = recv(sock, &req, sizeof(req), 0)) > 0) {
         pid_t pid;

@@ -50,8 +50,10 @@ void timer_notify_expiry(time_t expiry) {
         daemon_log(LOG_DEBUG, "%s: Firing a SIGALRM right now", __FUNCTION__);
         kill(getpid(), SIGALRM);
     } else {
+#if 0 /* noisy */
         daemon_log(LOG_DEBUG, "%s: Set alarm for %ld seconds from now",
                 __FUNCTION__, delta);
+#endif
 
         alarm(delta);
     }
