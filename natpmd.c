@@ -1438,6 +1438,20 @@ static int go_daemon(void) {
         goto finish;
     }
 
+    if (daemonize) {
+        /* Fork and exit the parent process to return it to a shell */
+        pid = daemon_fork();
+        if (-1 == pid) {
+            daemon_log(LOG_ERR, "Failed to fork daemon: %s", strerror(errno));
+            goto finish;
+        }
+        /* Parent */
+        if (pid != 0) {
+            ret = 0;
+            goto finish;
+        }
+    }
+
     pid = daemon_fork();
     if (-1 == pid) {
         daemon_log(LOG_ERR, "Failed to fork daemon: %s", strerror(errno));
