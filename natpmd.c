@@ -1445,11 +1445,12 @@ static int go_daemon(void) {
             daemon_log(LOG_ERR, "Failed to fork daemon: %s", strerror(errno));
             goto finish;
         }
-        /* Parent */
         if (pid != 0) {
+            /* Parent */
             ret = 0;
             goto finish;
         }
+        /* Child continues */
     }
 
     pid = daemon_fork();
