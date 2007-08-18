@@ -1453,6 +1453,8 @@ static int go_daemon(void) {
         /* Child continues */
     }
 
+    wrote_pid_file = !daemon_pid_file_create();
+
     pid = daemon_fork();
     if (-1 == pid) {
         daemon_log(LOG_ERR, "Failed to fork daemon: %s", strerror(errno));
@@ -1479,8 +1481,6 @@ static int go_daemon(void) {
                     first ? "receive" : "send", strerror(errno));
             goto finish;
         }
-
-        daemon_pid_file_create();
 
         (void) avahi_natpm_maplist_init();
         
