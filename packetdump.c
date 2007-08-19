@@ -74,6 +74,15 @@ void avahi_natpmp_pkt_dump_free(void) {
 }
 
 /**
+ * Frees the specified string, ensuring it is not equal to dump_str
+ * (which might lead to accidental double-free or SEGV).
+ */
+static void safe_free(char *oldstr) {
+    if (oldstr != dump_str)
+        avahi_free(oldstr);
+}
+
+/**
  * Pretty inefficient way of turning any packet into a nicely formatted, human
  * readable description.
  *
@@ -108,7 +117,7 @@ const char *avahi_natpmp_pkt_dump(const AvahiNPPacket *pkt) {
         if (!dump_str)
             return (dump_str = oldstr); /* return as much as possible */
 
-        avahi_free(oldstr);
+        safe_free(oldstr);
     }
 
     oldstr = dump_str;
@@ -131,7 +140,7 @@ const char *avahi_natpmp_pkt_dump(const AvahiNPPacket *pkt) {
     if (!dump_str)
         return (dump_str = oldstr); /* return as much as possible */
 
-    avahi_free(oldstr);
+    safe_free(oldstr);
 
     /* one more time... */
     oldstr = dump_str;
@@ -141,7 +150,7 @@ const char *avahi_natpmp_pkt_dump(const AvahiNPPacket *pkt) {
     if (!dump_str)
         return (dump_str = oldstr); /* return as much as possible */
 
-    avahi_free(oldstr);
+    safe_free(oldstr);
 
     return dump_str;
 }
