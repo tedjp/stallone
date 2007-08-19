@@ -607,7 +607,10 @@ static void process_map_packet(const AvahiNPPacket *request, AvahiNPPacket *resp
     /* Proto has already been sanitised by caller. */
     assert(proto == NATPMP_OPCODE_MAP_TCP || proto == NATPMP_OPCODE_MAP_UDP);
 
-    daemon_log(LOG_INFO, "Trying to fulfill port (un?)mapping request (%s)", portmap_request_to_str(request));
+    if (lifetime)
+        daemon_log(LOG_INFO, "Trying to fulfill port mapping request (%s)", portmap_request_to_str(request));
+    else
+        daemon_log(LOG_INFO, "Trying to fulfill port unmapping request (%s)", portmap_request_to_str(request));
 
     if (lifetime > MAX_MAPPING_LIFETIME)
         lifetime = MAX_MAPPING_LIFETIME;
