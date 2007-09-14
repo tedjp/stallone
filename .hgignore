@@ -1,8 +1,0 @@
-syntax: glob
-
-autom4te.cache
-config.h.in
-configure
-Makefile.in
-*/Makefile.in
-stallone-*.tar.gz
