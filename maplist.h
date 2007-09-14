@@ -46,7 +46,8 @@ int avahi_natpm_maplist_has_expired_items(void) AVAHI_GCC_PURE;
 
 int avahi_natpm_maplist_find_expired(AvahiNatpmMap ***results);
 int avahi_natpm_maplist_find_byhost(in_addr_t hostaddr, AvahiNatpmMap ***results);
-AvahiNatpmMap *avahi_natpm_maplist_find_hostport(in_addr_t host, uint16_t priv_port, AvahiNPProto proto);
+AvahiNatpmMap *avahi_natpm_maplist_find_hostport(in_addr_t host, uint16_t priv_port);
+AvahiNatpmMap *avahi_natpm_maplist_find_hostportproto(in_addr_t host, uint16_t priv_port, AvahiNPProto proto);
 AvahiNatpmMap *avahi_natpm_maplist_find_by_pub_port(uint16_t pub_port);
 
 void avahi_natpm_maplist_free_result(AvahiNatpmMap **result);

@@ -985,7 +985,7 @@ static void set_map_lifetime(AvahiNatpmMap *map, AvahiNPProto proto, uint32_t li
  */
 void map_port(AvahiNPPacket *response, uint32_t lifetime, uint16_t priv_port, uint16_t pub_port, AvahiNPProto proto) {
     AvahiNatpmMap *map = NULL;
-    int already_mapped_other_proto = 0;
+    int other_proto_already_mapped = 0;
 
     assert(response);
     assert(lifetime != 0);
@@ -1002,11 +1002,12 @@ void map_port(AvahiNPPacket *response, uint32_t lifetime, uint16_t priv_port, ui
     daemon_log(LOG_DEBUG, "%s: Received mapping request from %s for private port %hu and public port %hu",
             __FUNCTION__, ip4_addr_str(response->addr.sin_addr), priv_port, pub_port);
 
-    /* Check if this port is already mapped by the same host */
-    map = avahi_natpm_maplist_find_hostport(response->addr.sin_addr.s_addr, priv_port, proto);
+    /* Check if this host already has this port mapped (regardless of proto) */
+    map = avahi_natpm_maplist_find_hostport(response->addr.sin_addr.s_addr, priv_port);
     if (map) {
         if ((proto == NATPMP_MAP_TCP && map->tcp.state == PORT_MAPPED)
                 || (proto == NATPMP_MAP_UDP && map->udp.state == PORT_MAPPED)) {
+
             daemon_log(LOG_DEBUG, "%s: Mapping already active, updating lifetime and sending success.",
                     __FUNCTION__);
 
@@ -1015,8 +1016,9 @@ void map_port(AvahiNPPacket *response, uint32_t lifetime, uint16_t priv_port, ui
             response->data.common.result = htons(NATPMP_RESULT_SUCCESS);
             return;
         }
+        /* else: map other proto (continue below) */
+        other_proto_already_mapped = 1;
 
-        already_mapped_other_proto = 1;
     } else {
         /* New mapping required */
         map = find_free_port(pub_port);
@@ -1032,11 +1034,12 @@ void map_port(AvahiNPPacket *response, uint32_t lifetime, uint16_t priv_port, ui
 
         /* Fill in more of the map struct */
         map->private_addr = response->addr.sin_addr.s_addr;
-        if (proto == NATPMP_MAP_TCP)
-            map->tcp.private_port = priv_port;
-        else
-            map->udp.private_port = priv_port;
     }
+
+    if (proto == NATPMP_MAP_TCP)
+        map->tcp.private_port = priv_port;
+    else
+        map->udp.private_port = priv_port;
 
     set_map_lifetime(map, proto, lifetime);
 
@@ -1058,7 +1061,8 @@ void map_port(AvahiNPPacket *response, uint32_t lifetime, uint16_t priv_port, ui
     else
         map->udp.state = PORT_MAPPED;
 
-    avahi_natpm_maplist_add(map);
+    if (!other_proto_already_mapped)
+        avahi_natpm_maplist_add(map);
 
     daemon_log(LOG_INFO, "Successfully mapped lifetime[%u], private[%hu], public[%hu], proto[%s] for [%s]",
             lifetime, priv_port, pub_port, proto_strings[proto], ip4_addr_str(response->addr.sin_addr));
@@ -1068,9 +1072,11 @@ void map_port(AvahiNPPacket *response, uint32_t lifetime, uint16_t priv_port, ui
     return;
 
 fail:
-    if (map)
+    if (map && !other_proto_already_mapped)
         avahi_natpm_map_destroy(map);
 
+    /* If other_proto_already_mapped then this proto's state is still
+     * safely PORT_UNMAPPED. */
     /* It doesn't matter if the timer fires a blank because of this failure --
      * don't bother updating it. */
 }
@@ -1202,7 +1208,7 @@ uint16_t unmap_port(AvahiNPPacket *response, in_addr_t host, uint16_t priv_port,
         /* This is only here because the ip4_addr_str() interface is broken. */
         const struct in_addr saddr = { host };
 
-        map = avahi_natpm_maplist_find_hostport(host, priv_port, proto);
+        map = avahi_natpm_maplist_find_hostportproto(host, priv_port, proto);
 
         if (map) {
 

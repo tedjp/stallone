@@ -38,6 +38,7 @@ static int test_add_remove_count(void);
 static int test_find(void);
 static int test_find_hosts(void);
 static int test_find_single_host(void);
+static int test_map_same_port(void);
 static int test_expiry(void);
 
 int main(void) {
@@ -382,7 +383,7 @@ int test_find_single_host(void) {
 
     REQUIRE_INIT(avahi_natpm_maplist_init(), 0);
 
-    TEST_EXPECT_PTR(avahi_natpm_maplist_find_hostport(host, port, proto), NULL);
+    TEST_EXPECT_PTR(avahi_natpm_maplist_find_hostportproto(host, port, proto), NULL);
 
     /* Test the no-match case */
     map = make_map(NATPMP_PROTO_UDP, 86400);
@@ -392,7 +393,7 @@ int test_find_single_host(void) {
 
     REQUIRE_INIT(avahi_natpm_maplist_add(map), 0);
     
-    result = avahi_natpm_maplist_find_hostport(host, port, NATPMP_PROTO_TCP);
+    result = avahi_natpm_maplist_find_hostportproto(host, port, NATPMP_PROTO_TCP);
     TEST_EXPECT_PTR(result, NULL);
 
     avahi_natpm_maplist_remove_all();
@@ -421,7 +422,7 @@ int test_find_single_host(void) {
 
             REQUIRE_INIT(avahi_natpm_maplist_add(map), 0);
 
-            result = avahi_natpm_maplist_find_hostport(host, port, protround == 1 ? NATPMP_PROTO_TCP : NATPMP_PROTO_UDP);
+            result = avahi_natpm_maplist_find_hostportproto(host, port, protround == 1 ? NATPMP_PROTO_TCP : NATPMP_PROTO_UDP);
             if (round == 0 || round == 1)
                 TEST_EXPECT_PTR(result, NULL);
             else

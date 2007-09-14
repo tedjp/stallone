@@ -218,7 +218,10 @@ AvahiNatpmMap *avahi_natpm_maplist_find_by_pub_port(uint16_t pub_port) {
     return NULL;
 }
 
-AvahiNatpmMap *avahi_natpm_maplist_find_hostport(in_addr_t host, uint16_t priv_port, AvahiNPProto proto) {
+/**
+ * Find a map by host, port and protocol.
+ */
+AvahiNatpmMap *avahi_natpm_maplist_find_hostportproto(in_addr_t host, uint16_t priv_port, AvahiNPProto proto) {
     AvahiNatpmMap *it;
 
     for (it = list_head; it; it = it->map_next) {
@@ -231,6 +234,19 @@ AvahiNatpmMap *avahi_natpm_maplist_find_hostport(in_addr_t host, uint16_t priv_p
     }
 
     return NULL;
+}
+
+/**
+ * Find a map by host & port.
+ */
+AvahiNatpmMap *avahi_natpm_maplist_find_hostport(in_addr_t host, uint16_t priv_port) {
+    AvahiNatpmMap *map;
+
+    map = avahi_natpm_maplist_find_hostportproto(host, priv_port, NATPMP_MAP_TCP);
+    if (map)
+        return map;
+
+    return avahi_natpm_maplist_find_hostportproto(host, priv_port, NATPMP_MAP_UDP);
 }
 
 /**
