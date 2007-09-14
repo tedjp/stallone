@@ -1,0 +1,7 @@
+*.gcno
+*.o
+# Test binaries
+test_*
+# Don't ignore sources that might match the above
+!*.c
+!*.h
