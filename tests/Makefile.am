@@ -18,8 +18,6 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-#if ENABLE_TESTS
-
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 
 TESTS = \
@@ -59,7 +57,5 @@ test_interface_vis_LDADD = $(AM_LDADD) $(LIBDAEMON_LIBS) \
                            $(top_builddir)/avahi-common/libavahi-common.a
 
 .PHONY: coverage
-
-#endif # ENABLE_TESTS
 
 # vim: ts=4 sw=4 et tw=80
