@@ -26,7 +26,7 @@ TESTS = \
     test_interface_vis \
     # end
 
-noinst_PROGRAMS = \
+check_PROGRAMS = \
 		  $(TESTS)
 
 test_maplist_SOURCES = test_maplist.c ../natmap.c ../maplist.c ../maplist.h
@@ -39,12 +39,8 @@ test_natmap_LDFLAGS = $(AM_LDFLAGS) $(COVERAGE_FLAGS)
 
 clean-local:
 	rm -f *.gcda *.gcno *.gcov
-	rm -f check-stamp
 
-check-local: check-TESTS
-	touch check-stamp
-
-coverage: check-local
+coverage: check
 	gcov -o test_maplist-maplist.gcda ../maplist.c
 	gcov -o test_natmap-natmap.gcda ../natmap.c
 	rm -f sysmacros.h*
