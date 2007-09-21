@@ -136,7 +136,7 @@ static const struct timespec resend_delays[] = {
     { 64, 0 }
 };
 
-static const char *proto_strings[] = {
+static const char *const proto_strings[] = {
     "?", /* invalid */
     "UDP",
     "TCP"
