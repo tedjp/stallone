@@ -1,7 +1,7 @@
 #!/bin/sh
 set -ex
 
-autoconf
 aclocal
+autoconf
 autoheader
 automake --add-missing --foreign --copy
