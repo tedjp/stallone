@@ -21,8 +21,11 @@
 # include <config.h>
 #endif
 
+#ifdef HAVE_SYS_CAPABILITY_H
+# include <sys/capability.h>
+#endif
+
 #include <unistd.h>
-#include <sys/capability.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
@@ -72,6 +75,7 @@ static void sigchld_handler(int sig);
 static int drop_caps(void);
 
 int drop_caps(void) {
+#if defined(HAVE_SYS_CAPABILITY_H) && defined(HAVE_LIBCAP)
 #if 0 /* TODO later */
     cap_t caps;
     static const cap_value_t cap_values[] = { CAP_NET_ADMIN };
@@ -84,6 +88,7 @@ int drop_caps(void) {
 
 
     cap_free(caps);
+#endif
 #endif
     return 0;
 }

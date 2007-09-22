@@ -15,8 +15,9 @@ AC_PROG_RANLIB
 # Used for tests/coverage
 AM_PROG_CC_C_O
 
-# Checks for libraries.
-AC_CHECK_LIB([cap], [cap_init])
+AC_CHECK_HEADER([sys/capability.h])
+
+AC_CHECK_LIB([cap], [cap_init], [LIBS="$LIBS -lcap"])
 
 PKG_CHECK_MODULES([LIBDAEMON], [libdaemon >= 0.5])
 AC_SUBST(LIBDAEMON_CFLAGS)

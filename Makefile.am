@@ -46,7 +46,7 @@ stallone_SOURCES = \
                        # end of list
 
 stallone_LDADD = \
-                     $(LIBDAEMON_LIBS) -lcap \
+                     $(LIBDAEMON_LIBS) \
                      $(top_builddir)/avahi-common/libavahi-common.a
 
 pkgdata_SCRIPTS = avahi-natpmd.action
