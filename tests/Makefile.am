@@ -29,6 +29,10 @@ TESTS = \
 check_PROGRAMS = \
 		  $(TESTS)
 
+AM_CPPFLAGS = \
+              -I$(top_srcdir) \
+              #endf
+
 test_maplist_SOURCES = test_maplist.c ../natmap.c ../maplist.c ../maplist.h
 test_maplist_CFLAGS = $(AM_CFLAGS) -DINITIAL_ALLOC=1 $(COVERAGE_FLAGS)
 test_maplist_LDFLAGS = $(AM_LDFLAGS) $(COVERAGE_FLAGS)
