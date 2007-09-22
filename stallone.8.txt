@@ -1,0 +1,96 @@
+STALLONE(8)
+===========
+Ted Percival <ted@midg3t.net>
+
+
+NAME
+----
+stallone - NAT Port-Mapping Protocol (NAT-PMP) Gateway Daemon
+
+
+SYNOPSIS
+--------
+'stallone' [OPTIONS]
+
+
+DESCRIPTION
+-----------
+stallone(8) provides computers on directly-attached private networks
+with the possibility of having TCP and UDP ports forwarded to them for
+the purpose of receiving direct connections from machines on the
+internet.
+
+
+OPTIONS
+-------
+
+-c, --check::
+	Check whether a stallone process is already running. Returns 0
+	(success) if one is running and 1 if one is not.
+
+-D, --daemonize::
+        Detach from the terminal and run as a background daemon. Implies `-s`.
+
+-h, --help::
+        Provide a list of options.
+
+-k, --kill::
+	Kill an existing stallone process.
+
+--no-chroot::
+	Don't chroot(2) the daemon (usually only for debugging).
+
+-s, --syslog::
+        Send log messages to syslog instead of (`stderr`) (implied by `-D`).
+
+-t, --script=SCRIPT::
+        Invoke SCRIPT to map ports.
+
+-V, --version::
+	Display stallone's version number and exit.
+
+
+ABOUT
+-----
+
+Stallone: NAT-PMP Gateway Daemon
+
+Stallone implements the NAT Port-Mapping Protocol (NAT-PMP) allowing
+machines on a private network to get publicly-routable TCP and UDP ports
+automatically.
+
+
+CONFIGURATION
+-------------
+
+Configuration of Stallone is currently only available through
+compile-time options or by editing the source code directly. Adding
+support for run-time configuration is high on the TODO list. See the
+output of `./configure --help` when building from source for a list of options.
+
+
+BUGS
+----
+
+Please report bugs to http://lazypants.org/bugzilla/[]
+
+
+SECURITY
+--------
+Stallone's architecture is two processes. The main process which
+maintains state information, and the worker process that handles
+creating and removing the actual port mappings.
+
+The main process runs in a chroot as an unprivileged user. The worker
+process runs as root and is not chrooted -- it needs to be able to
+access the machine's firewall configuration (usually iptables). The
+worker is kept small for easy auditing, and communicates with the main
+process over a pipe using a simple & strict protocol.
+
+
+SEE ALSO
+--------
+
+Home page: http://tedp.id.au/stallone/[]
+
+// vim: tw=72 ts=8 sw=8

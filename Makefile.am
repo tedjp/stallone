@@ -51,6 +51,9 @@ stallone_LDADD = \
 
 pkgdata_SCRIPTS = avahi-natpmd.action
 
-EXTRA_DIST = avahi-natpmd.action
+stallone.8.html: stallone.8.txt
+	asciidoc -d manpage stallone.8.txt
+
+EXTRA_DIST = avahi-natpmd.action stallone.8.txt stallone.8.html
 
 # vim:ts=4:sw=4:et:tw=80
