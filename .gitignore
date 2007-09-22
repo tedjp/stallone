@@ -13,6 +13,9 @@ depcomp
 install-sh
 missing
 stallone
+# For `make distcheck`: the tarball and the unpacked dir
+stallone-*.*.*
+stallone.8.html
 stamp-h1
 tags
 *.o
