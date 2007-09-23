@@ -29,7 +29,7 @@ AM_CPPFLAGS = \
     -DAVAHI_NATPMD_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-natpmd.conf\" \
     -DAVAHI_NATPMD_ACTION_SCRIPT=\"$(pkgdatadir)/avahi-natpmd.action\" \
     -DAVAHI_NATPMD_CHROOT_DIR=\"$(localstatedir)/avahi-natpmd\" \
-    -DAVAHI_PM_SOCKET=\"$(avahi_pm_socket)\" # XXX: Is this even used?
+    # end
 
 sbin_PROGRAMS = stallone
 
