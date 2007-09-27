@@ -35,36 +35,101 @@
 #include <avahi-common/malloc.h>
 
 #include "../common.h"
+#include "../packetdump.h"
 
+#define DEFAULT_MAP_LIFETIME 30
 
 /*
- * Invocation:
- * get-public
- * map <pub> <priv> [<time>]
- * unmap <pub> <priv>
+ * Program usage:
+ * get-public <gateway-addr>
+ * [un]map <gateway-addr> <priv-port> [<pub-port>] [<proto>] [<time>]
+ *
+ * ./app map <gateway-addr> <priv-port> [<pub-port>] [<proto>] [<time>]
  */
-
-/* TODO: Get this from common header! */
-enum natpm_op {
-    OP_UNKNOWN,
-    OP_GET_PUBLIC,
-    OP_MAP,
-    OP_UNMAP
+enum {
+    ARG_0,
+    ARG_OP,
+    ARG_GATEWAY,
+    ARG_PRIVPORT,
+    ARG_PUBPORT,
+    ARG_PROTO,
+    ARG_TIME,
+    ARG_EXPECT_ARGC_MAP /*< argc expected for [un]map ops */
 };
 
-enum natpm_proto {
-    PROTO_UDP = 1,
-    PROTO_TCP = 2
-};
+static void prepare_outgoing_packet(AvahiNPPacket *pkt, const char *gateway) {
+
+    assert(pkt);
+    assert(gateway);
+
+    memset(pkt, '\0', sizeof(*pkt));
+
+    pkt->addr.sin_family = AF_INET;
+    pkt->addr.sin_port = htons(NATPMP_PORT);
+    if (inet_pton(AF_INET, gateway, &pkt->addr.sin_addr) <= 0) {
+        fprintf(stderr, "Problem parsing gateway address\n");
+        exit(1);
+    }
+
+    pkt->data.common.version = 0;
+
+    pkt->sock = socket(PF_INET, SOCK_DGRAM, 0);
+    if (pkt->sock == -1) {
+        perror("socket");
+        exit(1);
+    }
+}
+
+static void send_packet(const AvahiNPPacket *pkt) {
+    ssize_t size;
+
+    assert(pkt);
+
+    size = sendto(pkt->sock, &pkt->data, pkt->datalen, 0,
+            (struct sockaddr*)&pkt->addr, sizeof(pkt->addr));
+
+    if (size == -1) {
+        perror("sendto");
+        exit(1);
+    }
+
+    if (size != pkt->datalen) {
+        fprintf(stderr, "size[%d] != pkt->datalen[%d], "
+                "look like somebody set up us the bomb. "
+                "Continuing anyway.\n",
+                size, pkt->datalen);
+    }
+}
+
+static void recv_packet(AvahiNPPacket *pkt) {
+    struct sockaddr_in fromaddr;
+    socklen_t fromlen = sizeof(fromaddr);
+    ssize_t size;
+
+    assert(pkt);
+
+    /* FIXME: Make nonblocking */
+    size = recvfrom(pkt->sock, &pkt->data, sizeof(pkt->data), 0,
+            (struct sockaddr *)&fromaddr, &fromlen);
+
+    if (size == -1) {
+        perror("recvfrom");
+        exit(1);
+    }
+
+    if (memcmp(&fromaddr, &pkt->addr, sizeof(struct sockaddr_in)) != 0) {
+        fprintf(stderr, "Received response from unexpected source %s:%hu\n",
+                ip4_addr_str(fromaddr.sin_addr), ntohs(fromaddr.sin_port));
+        exit(1);
+    }
+
+    pkt->datalen = size;
+}
 
 typedef void (*ClientAction)(int argc, char *argv[]);
 
 static void op_get_public(int argc, char *argv[]) {
     AvahiNPPacket pkt;
-    int sock;
-    ssize_t ssize;
-    struct sockaddr_in sockaddr_from;
-    socklen_t fromlen = sizeof(sockaddr_from);
 
     if (argc < 3) {
         fprintf(stderr, "%s %s: Please provide the gateway address to send to.\n",
@@ -72,71 +137,101 @@ static void op_get_public(int argc, char *argv[]) {
         exit(1);
     }
 
-    memset(&pkt, '\0', sizeof(pkt));
-
-    pkt.addr.sin_family = AF_INET;
-    pkt.addr.sin_port = htons(NATPMP_PORT);
-    if (inet_pton(AF_INET, argv[2], &pkt.addr.sin_addr) <= 0) {
-        fprintf(stderr, "Problem parsing gateway address\n");
-        exit(1);
-    }
+    prepare_outgoing_packet(&pkt, argv[2]);
 
     pkt.datalen = 2;
-    pkt.data.common.version = 0;
     pkt.data.common.opcode = NATPMP_OPCODE_PUBLIC_ADDR;
 
-    sock = socket(PF_INET, SOCK_DGRAM, 0);
-    if (sock == -1) {
-        perror("socket");
-        exit(1);
-    }
+    send_packet(&pkt);
 
-    pkt.sock = sock;
-
-    ssize = sendto(pkt.sock, &pkt.data, pkt.datalen, 0,
-            (struct sockaddr*)&pkt.addr, sizeof(pkt.addr));
-
-    if (ssize == -1) {
-        perror("sendto");
-        exit(1);
-    }
-
-    if (ssize != pkt.datalen) {
-        fprintf(stderr, "ssize[%d] != pkt.datalen[%d], "
-                "look like somebody set up us the bomb. "
-                "Continuing anyway.\n",
-                ssize, pkt.datalen);
-    }
-
-    /* FIXME: Make nonblocking */
-    ssize = recvfrom(pkt.sock, &pkt.data, sizeof(pkt.data), 0,
-            (struct sockaddr *)&sockaddr_from, &fromlen);
-
-    if (ssize == -1) {
-        perror("recvfrom");
-        exit(1);
-    }
-
-    pkt.datalen = ssize;
-
-    if (memcmp(&sockaddr_from, &pkt.addr, sizeof(struct sockaddr_in)) != 0) {
-        fprintf(stderr, "Received response from unexpected source %s:%hu\n",
-                ip4_addr_str(sockaddr_from.sin_addr), ntohs(sockaddr_from.sin_port));
-        exit(1);
-    }
+    recv_packet(&pkt);
 
     fprintf(stdout, "Received the following packet: %s\n",
             avahi_natpmp_pkt_dump(&pkt));
-
-    fprintf(stdout, "(And everything went fine!)\n");
 }
 
 static void op_map(int argc, char *argv[]) {
-    fprintf(stderr, "map not implemented yet (sorry!)\n");
+    AvahiNPPacket pkt;
+
+    if (argc != ARG_EXPECT_ARGC_MAP) {
+        fprintf(stderr,
+                "%s %s: Please provide gateway privport pubport proto time\n",
+                argv[ARG_0], argv[ARG_OP]);
+        exit(1);
+    }
+
+    prepare_outgoing_packet(&pkt, argv[2]);
+    pkt.datalen = 12;
+
+    /* proto */
+    if (strcasecmp("udp", argv[ARG_PROTO]) == 0)
+        pkt.data.common.opcode = NATPMP_OPCODE_MAP_UDP;
+    else if (strcasecmp("tcp", argv[ARG_PROTO]) == 0)
+        pkt.data.common.opcode = NATPMP_OPCODE_MAP_TCP;
+    else {
+        fprintf(stderr, "invalid protocol %s\n", argv[ARG_PROTO]);
+        exit(1);
+    }
+
+    /* ports */
+    {
+        long int port;
+        char *ptr;
+
+        port = strtol(argv[ARG_PRIVPORT], &ptr, 0);
+        if (*ptr != '\0' || port == 0 || port > UINT16_MAX) {
+            fprintf(stderr, "Invalid port %s\n", argv[ARG_PRIVPORT]);
+            exit(1);
+        }
+        /* priv */
+        pkt.data.u16[2] = port;
+
+        port = strtol(argv[ARG_PUBPORT], &ptr, 0);
+        if (*ptr != '\0' || port == 0 || port > UINT16_MAX) {
+            fprintf(stderr, "Invalid port %s\n", argv[ARG_PUBPORT]);
+            exit(1);
+        }
+        /* pub */
+        pkt.data.u16[3] = port;
+    }
+
+    /* time */
+    {
+        long int secs;
+        char *ptr;
+
+        secs = strtol(argv[ARG_TIME], &ptr, 0);
+        /* Allowing time of zero for an easy way to unmap */
+        if (*ptr != '\0' || secs > UINT32_MAX) {
+            fprintf(stderr, "Bad lifetime %s, using %u instead.\n",
+                    argv[ARG_TIME], DEFAULT_MAP_LIFETIME);
+            pkt.data.u32[2] = DEFAULT_MAP_LIFETIME;
+        } else {
+            pkt.data.u32[2] = secs;
+        }
+    }
+
+    send_packet(&pkt);
+
+    recv_packet(&pkt);
+
+    fprintf(stdout, "Received this response: %s\n",
+            avahi_natpmp_pkt_dump(&pkt));
 }
 
 static void op_unmap(int argc, char *argv[]) {
-    fprintf(stderr, "unmap not implemented yet (sorry!)\n");
+    /* Just replace the arg that is the time with "0" and call op_map */
+
+    if (argc != ARG_EXPECT_ARGC_MAP) {
+        fprintf(stderr, "Expected %d arguments but got %d. "
+                "See the help for the map command.\n",
+                ARG_EXPECT_ARGC_MAP, argc);
+        exit(1);
+    }
+
+    /* Time=0 means unmap. Magic! */
+    argv[ARG_TIME] = "0";
+    op_map(argc, argv);
 }
 
 struct {
@@ -150,7 +245,6 @@ struct {
 
 
 int main(int argc, char *argv[]) {
-    enum natpm_op op = OP_UNKNOWN;
     ClientAction action = NULL;
     int i;
 
@@ -175,8 +269,9 @@ int main(int argc, char *argv[]) {
 
     action(argc, argv);
 
-    return 0;
+    fprintf(stdout, "(And everything went fine!)\n");
 
+    return 0;
 }
 
 /* vim: ts=4 sw=4 et tw=80
