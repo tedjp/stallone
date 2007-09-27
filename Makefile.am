@@ -19,9 +19,10 @@
 AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = \
-	  avahi-common \
-	  tests \
-	  # end
+      avahi-common \
+      tests \
+      testclient \
+   # end
 
 pkgsysconfdir = $(sysconfdir)/avahi
 
@@ -56,4 +57,4 @@ stallone.8.html: stallone.8.txt
 
 EXTRA_DIST = avahi-natpmd.action stallone.8.txt stallone.8.html
 
-# vim:ts=4:sw=4:et:tw=80
+# vim: ts=4 sw=4 et tw=80 list

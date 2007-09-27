@@ -75,5 +75,8 @@ AC_DEFINE_UNQUOTED(AVAHI_NATPMD_GROUP,"$AVAHI_NATPMD_GROUP", [Group for running 
 
 AC_CONFIG_FILES([Makefile
                  tests/Makefile
-		 avahi-common/Makefile])
+                 testclient/Makefile
+                 avahi-common/Makefile])
 AC_OUTPUT
+
+# vim: ts=4 sw=4 et
