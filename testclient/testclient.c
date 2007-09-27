@@ -234,7 +234,7 @@ static void op_unmap(int argc, char *argv[]) {
     op_map(argc, argv);
 }
 
-struct {
+static struct {
     const char *const cmdname;
     ClientAction action;
 } clientcmds[] = {
