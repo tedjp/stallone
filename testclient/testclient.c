@@ -31,13 +31,16 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <poll.h>
 
 #include <avahi-common/malloc.h>
+#include <avahi-common/fdutil.h>
 
 #include "../common.h"
 #include "../packetdump.h"
 
 #define DEFAULT_MAP_LIFETIME 30
+#define RESPONSE_WAIT_TIME_MSEC 5000
 
 /*
  * Program usage:
@@ -78,6 +81,8 @@ static void prepare_outgoing_packet(AvahiNPPacket *pkt, const char *gateway) {
         perror("socket");
         exit(1);
     }
+
+    avahi_set_nonblock(pkt->sock);
 }
 
 static void send_packet(const AvahiNPPacket *pkt) {
@@ -108,7 +113,29 @@ static void recv_packet(AvahiNPPacket *pkt) {
 
     assert(pkt);
 
-    /* FIXME: Make nonblocking */
+    {
+        struct pollfd pfd;
+        pfd.fd = pkt->sock;
+        pfd.events = POLLIN;
+        int ret;
+
+        ret = poll(&pfd, 1, RESPONSE_WAIT_TIME_MSEC);
+
+        if (ret == -1) {
+            perror("poll");
+            exit(1);
+        }
+        if (ret == 0) {
+            fprintf(stderr, "Timed out waiting %d ms for a response\n",
+                    RESPONSE_WAIT_TIME_MSEC);
+            exit(2);
+        }
+        if ((pfd.revents & POLLHUP) && !(pfd.revents & POLLIN)) {
+            fprintf(stderr, "Socket closed without a response\n");
+            exit(2);
+        }
+    }
+
     size = recvfrom(pkt->sock, &pkt->data, sizeof(pkt->data), 0,
             (struct sockaddr *)&fromaddr, &fromlen);
 
