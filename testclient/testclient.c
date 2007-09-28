@@ -42,13 +42,6 @@
 #define DEFAULT_MAP_LIFETIME 30
 #define RESPONSE_WAIT_TIME_MSEC 5000
 
-/*
- * Program usage:
- * get-public <gateway-addr>
- * [un]map <gateway-addr> <priv-port> [<pub-port>] [<proto>] [<time>]
- *
- * ./app map <gateway-addr> <priv-port> [<pub-port>] [<proto>] [<time>]
- */
 enum {
     ARG_0,
     ARG_OP,
@@ -196,7 +189,7 @@ static void op_map(int argc, char *argv[]) {
     else if (strcasecmp("tcp", argv[ARG_PROTO]) == 0)
         pkt.data.common.opcode = NATPMP_OPCODE_MAP_TCP;
     else {
-        fprintf(stderr, "invalid protocol %s\n", argv[ARG_PROTO]);
+        fprintf(stderr, "Invalid protocol %s, use TCP or UDP\n", argv[ARG_PROTO]);
         exit(1);
     }
 
@@ -261,6 +254,20 @@ static void op_unmap(int argc, char *argv[]) {
     op_map(argc, argv);
 }
 
+void help_and_exit(const char *argv0, int exitcode) {
+    FILE *stream = exitcode ? stderr : stdout;
+
+    fprintf(stream,
+            "Usage: %s <command> <gateway-addr> [<args>...]\n"
+            "  Commands:\n"
+            "    get-public <gateway-addr>\n"
+            "    map        <gateway-addr> <priv-port> <pub-port> <proto> <time>\n"
+            "    unmap      <gateway-addr> <priv-port> <pub-port> <proto> 0\n"
+            ,argv0);
+
+    exit(exitcode);
+}
+
 static struct {
     const char *const cmdname;
     ClientAction action;
@@ -270,16 +277,14 @@ static struct {
     {"unmap", op_unmap},
 };
 
-
 int main(int argc, char *argv[]) {
     ClientAction action = NULL;
     int i;
 
-    if (argc == 1) {
-        /* TODO: Better usage prompt */
-        fprintf(stderr, "Must provide a command. Try \"%s get-public\".\n",
-                argv[0]);
-        return 1;
+    if (    argc == 1
+        || (argc == 2 && strcmp(argv[1],"-h") == 0)
+        || (argc == 2 && strcmp(argv[1],"--help") == 0)) {
+        help_and_exit(argv[0], argc == 2 ? 0 : 1);
     }
 
     for (i = 0; i < sizeof(clientcmds) / sizeof(clientcmds[0]); ++i) {
@@ -289,10 +294,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (!action) {
-        fprintf(stderr, "Unknown action name \"%s\"\n", argv[1]);
-        return 1;
-    }
+    if (!action)
+        help_and_exit(argv[0], 1);
 
     action(argc, argv);
 
