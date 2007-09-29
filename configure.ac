@@ -28,6 +28,7 @@ AM_MAINTAINER_MODE
 
 # Checks for programs.
 AC_PROG_CC
+AC_GNU_SOURCE
 # For libavahi-common
 AC_PROG_RANLIB
 # Used for tests/coverage

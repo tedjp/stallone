@@ -1617,7 +1617,9 @@ finish:
 
 int main(int argc, char *argv[]) {
     int ret = 1;
-    struct sigaction siga = { 0 };
+    struct sigaction siga;
+
+    memset(&siga, '\0', sizeof(siga));
 
     siga.sa_handler = SIG_IGN;
 

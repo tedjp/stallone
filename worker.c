@@ -182,8 +182,10 @@ int worker(int sock) {
             int signum;
             siginfo_t siginfo;
             const struct timespec waittime = { MAX_RUN_SECONDS, 0 };
-            struct sigaction oldhandler, ourhandler = { 0 };
+            struct sigaction oldhandler, ourhandler;
             pid_t waitedpid;
+
+            memset(&ourhandler, '\0', sizeof(ourhandler));
 
             ourhandler.sa_handler = sigchld_handler;
 
