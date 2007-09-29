@@ -199,7 +199,7 @@ static void op_map(int argc, char *argv[]) {
         char *ptr;
 
         port = strtol(argv[ARG_PRIVPORT], &ptr, 0);
-        if (*ptr != '\0' || port == 0 || port > UINT16_MAX) {
+        if (*ptr != '\0' || port < 0 || port > UINT16_MAX) {
             fprintf(stderr, "Invalid port %s\n", argv[ARG_PRIVPORT]);
             exit(1);
         }
@@ -207,7 +207,7 @@ static void op_map(int argc, char *argv[]) {
         pkt.data.u16[2] = port;
 
         port = strtol(argv[ARG_PUBPORT], &ptr, 0);
-        if (*ptr != '\0' || port == 0 || port > UINT16_MAX) {
+        if (*ptr != '\0' || port < 0 || port > UINT16_MAX) {
             fprintf(stderr, "Invalid port %s\n", argv[ARG_PUBPORT]);
             exit(1);
         }
