@@ -1622,7 +1622,7 @@ int main(int argc, char *argv[]) {
     siga.sa_handler = SIG_IGN;
 
     if (-1 == sigaction(SIGPIPE, &siga, NULL))
-	    daemon_log(LOG_ERR, "Ignoring SIGPIPE failed");
+        daemon_log(LOG_ERR, "Ignoring SIGPIPE failed");
 
     if ((argv0 = strrchr(argv[0], '/')))
         argv0 = avahi_strdup(argv0 + 1);

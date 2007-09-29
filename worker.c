@@ -182,17 +182,17 @@ int worker(int sock) {
             int signum;
             siginfo_t siginfo;
             const struct timespec waittime = { MAX_RUN_SECONDS, 0 };
-	    struct sigaction oldhandler, ourhandler = { 0 };
+            struct sigaction oldhandler, ourhandler = { 0 };
             pid_t waitedpid;
 
-	    ourhandler.sa_handler = sigchld_handler;
+            ourhandler.sa_handler = sigchld_handler;
 
-	    /* Set signal handler for SIGCHLD */
-	    if (-1 == sigaction(SIGCHLD, &ourhandler, &oldhandler)) {
-		    daemon_log(LOG_ERR, "Setting signal handler for SIGCHLD failed: %s",
-				    strerror(errno));
-		    return 1;
-	    }
+            /* Set signal handler for SIGCHLD */
+            if (-1 == sigaction(SIGCHLD, &ourhandler, &oldhandler)) {
+                daemon_log(LOG_ERR, "Setting signal handler for SIGCHLD failed: %s",
+                        strerror(errno));
+                return 1;
+            }
 
             /* XXX: Check for SIGHUP and SIGTERM too to stay interactive? */
             while ((signum = sigtimedwait(&newsigs, &siginfo, &waittime)) == -1 && errno == EINTR)
@@ -200,12 +200,12 @@ int worker(int sock) {
 
             assert(signum == SIGCHLD || (signum == -1 && errno == EAGAIN));
 
-	    /* Remove signal handler for SIGCHLD */
-	    if (-1 == sigaction(SIGCHLD, &oldhandler, NULL)) {
-		    daemon_log(LOG_ERR, "Restoring old SIGCHLD handler failed: %s",
-				    strerror(errno));
-		    return 1;
-	    }
+            /* Remove signal handler for SIGCHLD */
+            if (-1 == sigaction(SIGCHLD, &oldhandler, NULL)) {
+                daemon_log(LOG_ERR, "Restoring old SIGCHLD handler failed: %s",
+                        strerror(errno));
+                return 1;
+            }
 
             /* Restore old signal state */
             if (-1 == sigprocmask(SIG_SETMASK, &oldsigs, NULL)) {
@@ -391,5 +391,5 @@ static void sigchld_handler(int sig) {
 }
 
 
-/* vim:ts=4:sw=4:et:tw=80
+/* vim: ts=4 sw=4 et tw=80
  */
