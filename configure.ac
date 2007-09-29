@@ -20,7 +20,7 @@
 # USA.
 
 AC_PREREQ(2.61)
-AC_INIT([stallone], [0.0.0], [ted@midg3t.net])
+AC_INIT([stallone], [0.1.0], [ted @ midg3t.net])
 AC_CONFIG_SRCDIR([common.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE
