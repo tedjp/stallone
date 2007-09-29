@@ -20,3 +20,6 @@ stamp-h1
 tags
 *.o
 *~
+
+autoscan.log
+configure.scan

@@ -49,7 +49,24 @@ AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_STAT
-AC_CHECK_FUNCS([alarm gettimeofday memset mkdir socket strerror strrchr setresgid setegid setregid setresuid seteuid setreuid select])
+AC_CHECK_FUNCS([\
+                alarm \
+                gettimeofday \
+                memset \
+                mkdir \
+                select \
+                setegid \
+                seteuid \
+                setregid \
+                setresgid \
+                setresuid \
+                setreuid \
+                socket \
+                strcasecmp \
+                strerror \
+                strrchr \
+                strtol \
+                ])
 
 #
 # Avahi-natpmd users & groups
