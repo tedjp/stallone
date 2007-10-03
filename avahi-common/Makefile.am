@@ -31,9 +31,13 @@ libavahi_common_a_SOURCES = \
 			    fdutil.c \
 			    fdutil.h \
 			    gccmacro.h \
+			    ini-file-parser.c \
+			    ini-file-parser.h \
 			    llist.h \
 			    malloc.c \
 			    malloc.h \
 			    setproctitle.c \
 			    setproctitle.h \
 			    # end of list
+
+# vim: ts=8 sw=4 noet

@@ -47,6 +47,7 @@
 #include <avahi-common/llist.h>
 
 #include <avahi-common/setproctitle.h>
+#include <avahi-common/ini-file-parser.h>
 
 #include <libdaemon/dfork.h>
 #include <libdaemon/dpid.h>
@@ -75,6 +76,10 @@
 #define IPC_WAIT_TIME           { 4, 0 } /* 4 sec */
 
 #define MAX_MAPPING_LIFETIME    3600U
+
+#define DEFAULT_MIN_PORT 30800
+#define DEFAULT_MAX_PORT 30999
+#define NATPMD_CONFIG_SECTION "natpmd"
 
 
 /** types **/
@@ -118,7 +123,7 @@ static AvahiNatpmInterface *public_interface;
 static AvahiNatpmPrivateInterface *private_interfaces;
 
 /* XXX: Make this configurable */
-static uint16_t min_port = 30800, max_port = 30999;
+static uint16_t min_port = DEFAULT_MIN_PORT, max_port = DEFAULT_MAX_PORT;
 
 int ipc_sock = -1;
 
@@ -1614,6 +1619,83 @@ finish:
     return ret;
 }
 
+/* FIXME: This whole config parsing thing is far too specific.
+ * It needs to be pulled out into a separate file and split into slightly
+ * more modular code */
+
+/**
+ * Read the configuration and apply it.
+ * Returns 0 if the config was OK and parsed correctly, or
+ * -1 if there was a fatal problem with the config.
+ */
+static int apply_config(void) {
+    int ret = -1; /*< return code */
+    AvahiIniFile *file = NULL;
+    const AvahiIniFileGroup *group;
+    const AvahiIniFilePair *pair;
+
+
+    file = avahi_ini_file_load(NATPMD_DEFAULT_CONFIG_FILE);
+    if (!file)
+        goto cleanup;
+
+    /* Walk the config until we find the right section */
+    for (group = file->groups; group; group = group->groups_prev) {
+        if (strcmp(group->name, NATPMD_CONFIG_SECTION) == 0)
+            break;
+    }
+
+    if (!group) {
+        daemon_log(LOG_DEBUG,
+                "%s: No %s section found in config file. Leaving "
+                "config as-is",
+                __func__, NATPMD_CONFIG_SECTION);
+        goto cleanup;
+    }
+
+    for (pair = group->pairs; pair; pair = pair->pairs_next) {
+        uint16_t *which_port = NULL;
+
+        assert(pair->key);
+        assert(pair->value);
+
+        /* This code is screaming out to be made more generic */
+        if (strcmp("min-port", pair->key) == 0)
+            which_port = &min_port;
+        else if (strcmp("max-port", pair->key) == 0)
+            which_port = &max_port;
+
+        if (which_port) { /* a valid key for a port */
+            long lport;
+            char *endptr;
+
+            lport = strtol(pair->value, &endptr, 0);
+
+            if (*endptr || lport < 1 || lport > UINT32_MAX) {
+                daemon_log(LOG_ERR,
+                        "%s: Invalid %s port \"%s\"", 
+                        __func__, pair->key, pair->value);
+            } else {
+                /* Valid port */
+                *which_port = lport;
+            }
+        } else {
+            /* Unrecognised config option */
+            daemon_log(LOG_WARNING,
+                    "%s: Ignoring unrecognised config option \"%s\"",
+                    __func__, pair->key);
+        }
+    }
+
+    ret = 0; /* success */
+
+cleanup:
+    if (file)
+        avahi_ini_file_free(file);
+
+    return ret;
+}
+
 
 int main(int argc, char *argv[]) {
     int ret = 1;
@@ -1634,6 +1716,9 @@ int main(int argc, char *argv[]) {
     daemon_pid_file_ident = daemon_log_ident = argv0;
 
     if (parse_command_line(argc, argv) < 0)
+        goto finish;
+
+    if (apply_config() < 0)
         goto finish;
 
     if (use_syslog)

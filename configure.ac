@@ -87,6 +87,10 @@ AC_CHECK_FUNCS([\
                 strtol \
                 ])
 
+dnl TODO: Make this configurable
+dnl AC_DEFINE_UNQUOTED(NATPMD_DEFAULT_CONFIG_FILE, "$pkgsysconfdir/natpmd.conf",
+dnl                   [Configuration file location])
+
 #
 # Avahi-natpmd users & groups
 #

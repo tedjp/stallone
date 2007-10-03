@@ -50,6 +50,11 @@ stallone_LDADD = \
                      $(LIBDAEMON_LIBS) \
                      $(top_builddir)/avahi-common/libavahi-common.a
 
+stallone_CPPFLAGS = \
+                    $(AM_CPPFLAGS) \
+                    -DNATPMD_DEFAULT_CONFIG_FILE=\"$(pkgsysconfdir)/natpmd.conf\" \
+                    # end
+
 pkgdata_SCRIPTS = avahi-natpmd.action
 
 stallone.8.html: stallone.8.txt
