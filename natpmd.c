@@ -1434,7 +1434,9 @@ void update_timer(void) {
     timer_notify_expiry(exp);
 }
 
-/* This function might be able to be folded into main().
+/**
+ * Main daemon processing.
+ *
  * Returns -1 on failure or 0 on success.
  * Could probably return different codes depending on what went wrong, which
  * could be used as process return codes. */
