@@ -63,6 +63,7 @@
 #include "interface.h"
 #include "ipc.h"
 #include "maplist.h"
+#include "natpmd-config.h"
 #include "packetdump.h"
 #include "timer.h"
 #include "worker.h"
@@ -121,9 +122,8 @@ time_t epoch;
 
 static AvahiNatpmInterface *public_interface;
 static AvahiNatpmPrivateInterface *private_interfaces;
-
-/* XXX: Make this configurable */
-static uint16_t min_port = DEFAULT_MIN_PORT, max_port = DEFAULT_MAX_PORT;
+static char *config_filename;
+static AvahiNatpmdConfig config;
 
 int ipc_sock = -1;
 
@@ -148,7 +148,6 @@ static const char *const proto_strings[] = {
 };
 
 char *argv0 = NULL;
-char *action_script = NULL;
 static int daemonize = 0;
 static int use_syslog = 0;
 #if 0 /* unused */
@@ -185,6 +184,7 @@ static int parse_command_line(int argc, char *argv[]) {
 
     static const struct option long_options[] = {
         { "help",          no_argument,       NULL, 'h' },
+        { "config",        required_argument, NULL, 'f' },
         { "daemonize",     no_argument,       NULL, 'D' },
         { "syslog",        no_argument,       NULL, 's' },
         { "kill",          no_argument,       NULL, 'k' },
@@ -207,6 +207,11 @@ static int parse_command_line(int argc, char *argv[]) {
                 command = DAEMON_HELP;
                 break;
 
+            case 'f':
+                avahi_free(config_filename);
+                config_filename = avahi_strdup(optarg);
+                break;
+
             case 'D':
                 daemonize = 1;
                 break;
@@ -224,12 +229,7 @@ static int parse_command_line(int argc, char *argv[]) {
                 break;
 
             case 't':
-                avahi_free(action_script);
-                action_script = avahi_strdup(optarg);
-                if (!action_script) {
-                    daemon_log(LOG_ERR, "%s: Out of memory, failing", __FUNCTION__);
-                    return -1;
-                }
+                natpmd_config_set_action_script(&config, optarg);
                 break;
 
             case 'V':
@@ -259,22 +259,6 @@ static int parse_command_line(int argc, char *argv[]) {
 
     if (optind != argc) {
         fprintf(stderr, "Too many arguments\n");
-        return -1;
-    }
-
-    if (!action_script)
-        action_script = avahi_strdup(AVAHI_NATPMD_ACTION_SCRIPT);
-    if (!action_script) {
-        daemon_log(LOG_ERR, "%s: Out of memory, failing", __FUNCTION__);
-        return -1;
-    }
-
-    if (action_script[0] != '/') {
-        /* TODO: Implement something like canonicalize_file_name() except don't
-         * resolve symlinks. Put it in avahi-common and add it to this and
-         * avahi-autoipd.
-         */
-        daemon_log(LOG_ERR, "Action script must be an absolute pathname");
         return -1;
     }
 
@@ -732,9 +716,9 @@ AvahiNatpmMap *find_free_port(uint16_t port_hint) {
     uint16_t udp_port = 0, tcp_port = 0;
     static uint16_t last_port = 0; /* Provides a hint for the next sequential port to try */
 
-    if (port_hint < min_port || port_hint > max_port) {
+    if (port_hint < config.min_port || port_hint > config.max_port) {
         daemon_log(LOG_DEBUG, "%s: port_hint %hu outside the configured range of %hu to %hu",
-                __FUNCTION__, port_hint, min_port, max_port);
+                __FUNCTION__, port_hint, config.min_port, config.max_port);
         port_hint = 0;
     }
 
@@ -749,8 +733,8 @@ AvahiNatpmMap *find_free_port(uint16_t port_hint) {
             /* It does not matter if port values overflow back to zero */
             ++last_port;
 
-            if (last_port < min_port || last_port > max_port)
-                last_port = min_port;
+            if (last_port < config.min_port || last_port > config.max_port)
+                last_port = config.min_port;
 
             port_hint = last_port;
         }
@@ -885,8 +869,8 @@ static int get_bound_socket(int type, uint16_t port) {
      * single error message. */
 
     assert(type == SOCK_STREAM || type == SOCK_DGRAM);
-    assert(port >= min_port);
-    assert(port <= max_port);
+    assert(port >= config.min_port);
+    assert(port <= config.max_port);
     assert(public_interface != NULL);
 
     if ((sock = socket(PF_INET, type, 0)) == -1)
@@ -1446,10 +1430,10 @@ static int go_daemon(void) {
     pid_t pid;
     int pmd_listen_sock = -1;
 
-    if (-1 == access(action_script, R_OK | X_OK)) {
+    if (-1 == access(config.action_script, R_OK | X_OK)) {
         daemon_log(LOG_ERR,
                 "natpmd action script %s is not readable and executable: %s",
-                action_script, strerror(errno));
+                config.action_script, strerror(errno));
         goto finish;
     }
 
@@ -1487,7 +1471,7 @@ static int go_daemon(void) {
     if (pid == 0) { /* child */
         close(fds[0]);
         ipc_sock = fds[1];
-        ret = worker(ipc_sock);
+        ret = worker(config.action_script, ipc_sock);
     }
     else { /* parent */
         const struct timeval waittime = IPC_WAIT_TIME;
@@ -1539,7 +1523,7 @@ static int go_daemon(void) {
         if (drop_privs() < 0)
             goto finish;
 
-        ipc_req_prepare(public_interface->name, min_port, max_port);
+        ipc_req_prepare(public_interface->name, config.min_port, config.max_port);
 
         pmd_listen_sock = pmdsock();
         if (pmd_listen_sock == -1)
@@ -1589,7 +1573,7 @@ static int go_daemon(void) {
         mainloop(pmd_listen_sock);
 
         /* cleanup */
-        if (ipc_req_cleanup(public_interface->name, min_port, max_port) != 0)
+        if (ipc_req_cleanup(public_interface->name, config.min_port, config.max_port) != 0)
             daemon_log(LOG_WARNING, "Public interface cleanup failed");
 
         /* This exists because the private interfaces list API is crap */
@@ -1621,87 +1605,17 @@ finish:
     return ret;
 }
 
-/* FIXME: This whole config parsing thing is far too specific.
- * It needs to be pulled out into a separate file and split into slightly
- * more modular code */
-
-/**
- * Read the configuration and apply it.
- * Returns 0 if the config was OK and parsed correctly, or
- * -1 if there was a fatal problem with the config.
- */
-static int apply_config(void) {
-    int ret = -1; /*< return code */
-    AvahiIniFile *file = NULL;
-    const AvahiIniFileGroup *group;
-    const AvahiIniFilePair *pair;
-
-
-    file = avahi_ini_file_load(NATPMD_DEFAULT_CONFIG_FILE);
-    if (!file)
-        goto cleanup;
-
-    /* Walk the config until we find the right section */
-    for (group = file->groups; group; group = group->groups_prev) {
-        if (strcmp(group->name, NATPMD_CONFIG_SECTION) == 0)
-            break;
-    }
-
-    if (!group) {
-        daemon_log(LOG_DEBUG,
-                "%s: No %s section found in config file. Leaving "
-                "config as-is",
-                __func__, NATPMD_CONFIG_SECTION);
-        goto cleanup;
-    }
-
-    for (pair = group->pairs; pair; pair = pair->pairs_next) {
-        uint16_t *which_port = NULL;
-
-        assert(pair->key);
-        assert(pair->value);
-
-        /* This code is screaming out to be made more generic */
-        if (strcmp("min-port", pair->key) == 0)
-            which_port = &min_port;
-        else if (strcmp("max-port", pair->key) == 0)
-            which_port = &max_port;
-
-        if (which_port) { /* a valid key for a port */
-            long lport;
-            char *endptr;
-
-            lport = strtol(pair->value, &endptr, 0);
-
-            if (*endptr || lport < 1 || lport > UINT16_MAX) {
-                daemon_log(LOG_ERR,
-                        "%s: Invalid %s port \"%s\"", 
-                        __func__, pair->key, pair->value);
-            } else {
-                /* Valid port */
-                *which_port = lport;
-            }
-        } else {
-            /* Unrecognised config option */
-            daemon_log(LOG_WARNING,
-                    "%s: Ignoring unrecognised config option \"%s\"",
-                    __func__, pair->key);
-        }
-    }
-
-    ret = 0; /* success */
-
-cleanup:
-    if (file)
-        avahi_ini_file_free(file);
-
-    return ret;
-}
-
 
 int main(int argc, char *argv[]) {
     int ret = 1;
     struct sigaction siga;
+
+    config_filename = avahi_strdup(NATPMD_DEFAULT_CONFIG_FILE);
+    if (!config_filename) {
+        daemon_log(LOG_ERR, "%s: Out of memory at avahi_strdup",
+                __func__);
+        goto finish;
+    }
 
     memset(&siga, '\0', sizeof(siga));
 
@@ -1720,7 +1634,7 @@ int main(int argc, char *argv[]) {
     if (parse_command_line(argc, argv) < 0)
         goto finish;
 
-    if (apply_config() < 0)
+    if (natpmd_config_load(&config, config_filename) != 0)
         goto finish;
 
     if (use_syslog)
@@ -1767,7 +1681,8 @@ finish:
     if (wrote_pid_file)
         daemon_pid_file_remove();
 
-    avahi_free(action_script);
+    avahi_free(config_filename);
+    natpmd_config_cleanup(&config);
     avahi_free(argv0);
 
     return ret;

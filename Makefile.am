@@ -41,6 +41,7 @@ stallone_SOURCES = \
                        maplist.c maplist.h \
                        natmap.c natmap.h \
                        natpmd.c \
+                       natpmd-config.c natpmd-config.h \
                        packetdump.c packetdump.h \
                        timer.c timer.h \
                        worker.c worker.h \

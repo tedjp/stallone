@@ -53,7 +53,7 @@
  */
 
 extern char *argv0;
-extern char *action_script;
+static const char *action_script;
 
 /*
  * This is pretty simple. It sits on a blocking read of the socket, and when
@@ -100,9 +100,14 @@ int drop_caps(void) {
  * an IPC packet (or whether they shouldn't). There are probably lots of latent
  * bugs.
  */
-int worker(int sock) {
+int worker(const char *action_script_file, int sock) {
     ssize_t siz;
     AvahiNatpmdIPCReq req;
+
+    assert(action_script_file);
+    assert(action_script_file[0] == '/');
+
+    action_script = action_script_file;
 
     avahi_set_cloexec(sock);
     /* XXX: Audit to ensure no extra sockets are passed to the child */
@@ -285,6 +290,7 @@ int op_add_remove(const AvahiNatpmdIPCReq *req) {
     struct in_addr saddr;
 
     assert(req);
+    assert(action_script);
 
     daemon_log(LOG_DEBUG, "%s: req->op = %d, req->proto = %d",
             __FUNCTION__, req->op, req->proto);
@@ -329,6 +335,7 @@ int op_prepare_cleanup(const AvahiNatpmdIPCReq *req) {
     const char *op;
 
     assert(req);
+    assert(action_script);
 
     if (req->op == IPCREQ_OP_PREPARE)
         op = "PREPARE";
@@ -366,6 +373,7 @@ int op_prepare_cleanup(const AvahiNatpmdIPCReq *req) {
 
 int op_clear(const AvahiNatpmdIPCReq *req) {
     assert(req);
+    assert(action_script);
 
     daemon_log(LOG_DEBUG, "%s", __FUNCTION__);
 
