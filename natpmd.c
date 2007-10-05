@@ -1671,7 +1671,7 @@ static int apply_config(void) {
 
             lport = strtol(pair->value, &endptr, 0);
 
-            if (*endptr || lport < 1 || lport > UINT32_MAX) {
+            if (*endptr || lport < 1 || lport > UINT16_MAX) {
                 daemon_log(LOG_ERR,
                         "%s: Invalid %s port \"%s\"", 
                         __func__, pair->key, pair->value);
