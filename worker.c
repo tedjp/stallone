@@ -109,6 +109,9 @@ int worker(const char *action_script_file, int sock) {
 
     action_script = action_script_file;
 
+    if (drop_caps() != 0)
+        return -1;
+
     avahi_set_cloexec(sock);
     /* XXX: Audit to ensure no extra sockets are passed to the child */
 
