@@ -229,7 +229,7 @@ static int parse_command_line(int argc, char *argv[]) {
                 break;
 
             case 't':
-                natpmd_config_set_action_script(&config, optarg);
+                natpmd_config_set_mapping_script(&config, optarg);
                 break;
 
             case 'V':
@@ -1430,10 +1430,10 @@ static int go_daemon(void) {
     pid_t pid;
     int pmd_listen_sock = -1;
 
-    if (-1 == access(config.action_script, R_OK | X_OK)) {
+    if (-1 == access(config.mapping_script, R_OK | X_OK)) {
         daemon_log(LOG_ERR,
                 "natpmd action script %s is not readable and executable: %s",
-                config.action_script, strerror(errno));
+                config.mapping_script, strerror(errno));
         goto finish;
     }
 
@@ -1471,7 +1471,7 @@ static int go_daemon(void) {
     if (pid == 0) { /* child */
         close(fds[0]);
         ipc_sock = fds[1];
-        ret = worker(config.action_script, ipc_sock);
+        ret = worker(config.mapping_script, ipc_sock);
     }
     else { /* parent */
         const struct timeval waittime = IPC_WAIT_TIME;

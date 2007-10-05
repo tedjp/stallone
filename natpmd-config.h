@@ -33,13 +33,13 @@ typedef struct AvahiNatpmdConfig AvahiNatpmdConfig;
 
 struct AvahiNatpmdConfig {
     uint16_t min_port, max_port;
-    char *action_script;
+    char *mapping_script;
 };
 
 int natpmd_config_load(AvahiNatpmdConfig *cfg, const char *filename);
 void natpmd_config_cleanup(AvahiNatpmdConfig *cfg);
 
-void natpmd_config_set_action_script(AvahiNatpmdConfig *cfg, const char *filename);
+void natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filename);
 
 AVAHI_C_DECL_END
 

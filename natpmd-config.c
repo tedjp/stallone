@@ -52,8 +52,8 @@ int natpmd_config_load(AvahiNatpmdConfig *cfg, const char *filename) {
         cfg->min_port = DEFAULT_MIN_PORT;
         cfg->max_port = DEFAULT_MAX_PORT;
 
-        cfg->action_script = avahi_strdup(AVAHI_NATPMD_ACTION_SCRIPT);
-        if (!cfg->action_script) {
+        cfg->mapping_script = avahi_strdup(AVAHI_NATPMD_ACTION_SCRIPT);
+        if (!cfg->mapping_script) {
             daemon_log(LOG_ERR, "%s: Out of memory", __func__);
             return -1;
         }
@@ -67,7 +67,7 @@ int natpmd_config_load(AvahiNatpmdConfig *cfg, const char *filename) {
  *
  * Calls exit() if there is any problem.
  */
-void natpmd_config_set_action_script(AvahiNatpmdConfig *cfg, const char *filename) {
+void natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filename) {
 
     assert(cfg);
     assert(filename);
@@ -83,10 +83,10 @@ void natpmd_config_set_action_script(AvahiNatpmdConfig *cfg, const char *filenam
         exit(1);
     }
 
-    avahi_free(cfg->action_script);
+    avahi_free(cfg->mapping_script);
 
-    cfg->action_script = avahi_strdup(filename);
-    if (!cfg->action_script) {
+    cfg->mapping_script = avahi_strdup(filename);
+    if (!cfg->mapping_script) {
         daemon_log(LOG_ERR, "%s: Out of memory, failing", __func__);
         exit(1);
     }
@@ -99,8 +99,8 @@ void natpmd_config_cleanup(AvahiNatpmdConfig *cfg) {
 
     assert(cfg);
 
-    avahi_free(cfg->action_script);
-    cfg->action_script = NULL;
+    avahi_free(cfg->mapping_script);
+    cfg->mapping_script = NULL;
 }
 
 /**
@@ -154,7 +154,7 @@ static int apply_config(AvahiNatpmdConfig *cfg, const char *filename) {
                 } else if (strcmp(pair->key, "max-port") == 0) {
                     parse_port(&cfg->max_port, pair->value);
                 } else if (strcmp(pair->key, "mapping-script") == 0) {
-                    natpmd_config_set_action_script(cfg, pair->value);
+                    natpmd_config_set_mapping_script(cfg, pair->value);
                 } else {
                     daemon_log(LOG_WARNING,
                             "%s: Ignoring unknown configuration option \"%s\"",

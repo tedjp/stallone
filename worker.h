@@ -39,7 +39,7 @@ struct AvahiNatpmdIPCReq {
     uint16_t min_port, max_port;
 };
 
-int worker(const char *action_script_file, int sock);
+int worker(const char *mapping_script_file, int sock);
 
 #endif
 /* vim:ts=4:sw=4:et:tw=80

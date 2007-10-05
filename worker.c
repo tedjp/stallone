@@ -53,7 +53,7 @@
  */
 
 extern char *argv0;
-static const char *action_script;
+static const char *mapping_script;
 
 /*
  * This is pretty simple. It sits on a blocking read of the socket, and when
@@ -100,14 +100,14 @@ int drop_caps(void) {
  * an IPC packet (or whether they shouldn't). There are probably lots of latent
  * bugs.
  */
-int worker(const char *action_script_file, int sock) {
+int worker(const char *mapping_script_file, int sock) {
     ssize_t siz;
     AvahiNatpmdIPCReq req;
 
-    assert(action_script_file);
-    assert(action_script_file[0] == '/');
+    assert(mapping_script_file);
+    assert(mapping_script_file[0] == '/');
 
-    action_script = action_script_file;
+    mapping_script = mapping_script_file;
 
     if (drop_caps() != 0)
         return -1;
@@ -293,7 +293,7 @@ int op_add_remove(const AvahiNatpmdIPCReq *req) {
     struct in_addr saddr;
 
     assert(req);
-    assert(action_script);
+    assert(mapping_script);
 
     daemon_log(LOG_DEBUG, "%s: req->op = %d, req->proto = %d",
             __FUNCTION__, req->op, req->proto);
@@ -311,7 +311,7 @@ int op_add_remove(const AvahiNatpmdIPCReq *req) {
 
     daemon_log(LOG_DEBUG, "%s: Executing %s %s %s %s %s %s",
             __FUNCTION__,
-            action_script,
+            mapping_script,
             req->op == IPCREQ_OP_ADD ? "ADD" : "REMOVE",
             req->proto == IPCREQ_PROTO_TCP ? "TCP" : "UDP",
             str_pub,
@@ -319,8 +319,8 @@ int op_add_remove(const AvahiNatpmdIPCReq *req) {
             str_priv);
 
     /* XXX: Use daemon_exec()? */
-    execl(  action_script,
-            action_script,
+    execl(  mapping_script,
+            mapping_script,
             req->op == IPCREQ_OP_ADD ? "ADD" : "REMOVE",
             req->proto == IPCREQ_PROTO_TCP ? "TCP" : "UDP",
             str_pub,
@@ -338,7 +338,7 @@ int op_prepare_cleanup(const AvahiNatpmdIPCReq *req) {
     const char *op;
 
     assert(req);
-    assert(action_script);
+    assert(mapping_script);
 
     if (req->op == IPCREQ_OP_PREPARE)
         op = "PREPARE";
@@ -355,14 +355,14 @@ int op_prepare_cleanup(const AvahiNatpmdIPCReq *req) {
 
     daemon_log(LOG_DEBUG, "%s: Executing %s %s %s %s %s",
             __FUNCTION__,
-            action_script,
+            mapping_script,
             op,
             req->interface,
             smin_port,
             smax_port);
 
-    execl(  action_script,
-            action_script,
+    execl(  mapping_script,
+            mapping_script,
             op,
             req->interface,
             smin_port,
@@ -376,13 +376,13 @@ int op_prepare_cleanup(const AvahiNatpmdIPCReq *req) {
 
 int op_clear(const AvahiNatpmdIPCReq *req) {
     assert(req);
-    assert(action_script);
+    assert(mapping_script);
 
     daemon_log(LOG_DEBUG, "%s", __FUNCTION__);
 
     /* XXX: Use daemon_exec()? */
-    execl(  action_script,
-            action_script,
+    execl(  mapping_script,
+            mapping_script,
             "CLEAR",
             NULL);
 
