@@ -27,10 +27,6 @@
 
 #include <avahi-common/cdecl.h>
 
-#define DEFAULT_MIN_PORT 30800
-#define DEFAULT_MAX_PORT 30999
-#define NATPMD_CONFIG_SECTION "natpmd"
-
 AVAHI_C_DECL_BEGIN
 
 typedef struct AvahiNatpmdConfig AvahiNatpmdConfig;
