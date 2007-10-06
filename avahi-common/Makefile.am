@@ -16,8 +16,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-AUTOMAKE_OPTIONS = foreign
-
 noinst_LIBRARIES = libavahi-common.a
 
 libavahi_common_a_CPPFLAGS = \
