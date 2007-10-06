@@ -24,6 +24,15 @@ AC_INIT([stallone], [0.1.0], [ted @ midg3t.net])
 AC_CONFIG_SRCDIR([common.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([foreign check-news -Wall])
+
+AC_ARG_ENABLE([developer-mode],
+              [AS_HELP_STRING([--enable-developer-mode],
+                              [Turns on maintainer-mode and stricter compiler options])])
+if test "$enable_developer_mode" = "yes"; then
+    enable_maintainer_mode=yes
+    # More developer options are turned on further down this file
+fi
+
 AM_MAINTAINER_MODE
 
 # Checks for programs.
@@ -33,6 +42,38 @@ AC_GNU_SOURCE
 AC_PROG_RANLIB
 # Used for tests/coverage
 AM_PROG_CC_C_O
+
+if test "x$GCC" = "xyes"; then
+    DESIRED_CFLAGS="-Wall -Wextra -Wno-unused -std=c99"
+    DESIRED_LDFLAGS="-Wl,-z,defs"
+
+    # Add stricter flags in developer mode
+    if test "$enable_developer_mode" = "yes"; then
+        DESIRED_CFLAGS="$DESIRED_CFLAGS -pedantic-errors -Werror"
+    fi
+
+    for flag in $DESIRED_CFLAGS; do
+        AC_MSG_CHECKING([whether ${CC} accepts ${flag}])
+        orig_CFLAGS="$CFLAGS"
+        CFLAGS="$flag $CFLAGS"
+
+        AC_COMPILE_IFELSE([int main() {}],
+                          [AC_MSG_RESULT([yes])],
+                          [AC_MSG_RESULT([no])
+                           CFLAGS="$orig_CFLAGS"])
+    done
+
+    for flag in $DESIRED_LDFLAGS; do
+        AC_MSG_CHECKING([whether ${CC} accepts ${flag}])
+        orig_LDFLAGS="$LDFLAGS"
+        LDFLAGS="$flag $LDFLAGS"
+
+        AC_LINK_IFELSE([int main() {}],
+                       [AC_MSG_RESULT([yes])],
+                       [AC_MSG_RESULT([no])
+                        LDFLAGS="$orig_LDFLAGS"])
+    done
+fi
 
 AC_CHECK_HEADER([sys/capability.h])
 
