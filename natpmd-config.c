@@ -137,7 +137,7 @@ static int apply_config(AvahiNatpmdConfig *cfg, const char *filename) {
     const AvahiIniFileGroup *group;
     const AvahiIniFilePair *pair;
 
-    file = avahi_ini_file_load(NATPMD_DEFAULT_CONFIG_FILE);
+    file = avahi_ini_file_load(filename);
     if (!file)
         goto cleanup;
 
