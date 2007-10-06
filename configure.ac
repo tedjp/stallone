@@ -94,23 +94,23 @@ dnl                   [Configuration file location])
 #
 # Avahi-natpmd users & groups
 #
-AC_ARG_WITH(natpmd_user, AS_HELP_STRING([--with-natpmd-user=<user>],[User for running the Avahi NAT port mapping daemon (avahi-natpmd)]))
+AC_ARG_WITH(natpmd_user, AS_HELP_STRING([--with-natpmd-user=<user>],[User for the daemon to run as by default (default=nobody)]))
 if test -z "$with_natpmd_user" ; then
-    AVAHI_NATPMD_USER=avahi-natpmd
+    AVAHI_NATPMD_USER=nobody
 else
     AVAHI_NATPMD_USER=$with_natpmd_user
 fi
 AC_SUBST(AVAHI_NATPMD_USER)
-AC_DEFINE_UNQUOTED(AVAHI_NATPMD_USER,"$AVAHI_NATPMD_USER", [User for running the avahi-natpmd daemon])
+AC_DEFINE_UNQUOTED(AVAHI_NATPMD_USER,"$AVAHI_NATPMD_USER", [User for the daemon to run as by default])
 
-AC_ARG_WITH(natpmd_group,AS_HELP_STRING([--with-natpmd-group=<group>],[Group for running the Avahi NAT port mapping daemon (avahi-natpmd)]))
+AC_ARG_WITH(natpmd_group,AS_HELP_STRING([--with-natpmd-group=<group>],[Group for the daemon to run as by default (default=nogroup)]))
 if test -z "$with_natpmd_group" ; then
-    AVAHI_NATPMD_GROUP=avahi-natpmd
+    AVAHI_NATPMD_GROUP=nogroup
 else
     AVAHI_NATPMD_GROUP=$with_natpmd_group
 fi
 AC_SUBST(AVAHI_NATPMD_GROUP)
-AC_DEFINE_UNQUOTED(AVAHI_NATPMD_GROUP,"$AVAHI_NATPMD_GROUP", [Group for running the avahi-natpmd daemon])
+AC_DEFINE_UNQUOTED(AVAHI_NATPMD_GROUP,"$AVAHI_NATPMD_GROUP", [iGroup for the daemon to run as by default])
 
 
 AC_CONFIG_FILES([Makefile
