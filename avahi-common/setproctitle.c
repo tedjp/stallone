@@ -77,7 +77,8 @@ void avahi_init_proc_title(int argc, char **argv) {
 #endif
 }	
 
-void avahi_set_proc_title(const char *name, const char *fmt,...) {
+/* name is unused if prctl is unavailable */
+void avahi_set_proc_title(const char *name AVAHI_GCC_UNUSED, const char *fmt,...) {
 #ifdef HAVE_SETPROCTITLE
     char t[256];
 

@@ -217,12 +217,16 @@ static void op_map(int argc, char *argv[]) {
 
     /* time */
     {
-        long int secs;
+        /* We do some acrobatics to be signed/unsigned safe as well as avoiding
+         * strtoul which is not portable. */
+        long int signed_secs;
+        unsigned long int secs;
         char *ptr;
 
-        secs = strtol(argv[ARG_TIME], &ptr, 0);
+        signed_secs = strtol(argv[ARG_TIME], &ptr, 0);
+        secs = signed_secs;
         /* Allowing time of zero for an easy way to unmap */
-        if (*ptr != '\0' || secs > UINT32_MAX) {
+        if (*ptr != '\0' || signed_secs < 0 || secs > UINT32_MAX) {
             fprintf(stderr, "Bad lifetime %s, using %u instead.\n",
                     argv[ARG_TIME], DEFAULT_MAP_LIFETIME);
             pkt.data.u32[2] = DEFAULT_MAP_LIFETIME;
@@ -279,7 +283,7 @@ static struct {
 
 int main(int argc, char *argv[]) {
     ClientAction action = NULL;
-    int i;
+    size_t i;
 
     if (    argc == 1
         || (argc == 2 && strcmp(argv[1],"-h") == 0)

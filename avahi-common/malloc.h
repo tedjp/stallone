@@ -47,6 +47,7 @@ void avahi_free(void *p);
 void *avahi_realloc(void *p, size_t size);
 
 /** Internal helper for avahi_new() */
+static inline void* avahi_new_internal(unsigned n, size_t k) AVAHI_GCC_UNUSED;
 static inline void* avahi_new_internal(unsigned n, size_t k) {
     assert(n < INT_MAX/k);
     return avahi_malloc(n*k);
@@ -56,6 +57,7 @@ static inline void* avahi_new_internal(unsigned n, size_t k) {
 #define avahi_new(type, n) ((type*) avahi_new_internal((n), sizeof(type)))
 
 /** Internal helper for avahi_new0() */
+static inline void* avahi_new0_internal(unsigned n, size_t k) AVAHI_GCC_UNUSED;
 static inline void* avahi_new0_internal(unsigned n, size_t k) {
     assert(n < INT_MAX/k);
     return avahi_malloc0(n*k);
