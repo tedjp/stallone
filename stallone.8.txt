@@ -43,9 +43,6 @@ OPTIONS
 -s, --syslog::
         Send log messages to syslog instead of (`stderr`) (implied by `-D`).
 
--t, --script=SCRIPT::
-        Invoke SCRIPT to map ports.
-
 -V, --version::
 	Display stallone's version number and exit.
 

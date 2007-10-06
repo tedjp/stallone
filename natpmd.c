@@ -189,7 +189,6 @@ static int parse_command_line(int argc, char *argv[]) {
         { "syslog",        no_argument,       NULL, 's' },
         { "kill",          no_argument,       NULL, 'k' },
         { "check",         no_argument,       NULL, 'c' },
-        { "script",        required_argument, NULL, 't' },
         { "version",       no_argument,       NULL, 'V' },
 #ifdef HAVE_CHROOT
         { "no-chroot",     no_argument,       NULL, OPTION_NO_CHROOT },
@@ -226,10 +225,6 @@ static int parse_command_line(int argc, char *argv[]) {
 
             case 'c':
                 command = DAEMON_CHECK;
-                break;
-
-            case 't':
-                natpmd_config_set_mapping_script(&config, optarg);
                 break;
 
             case 'V':
