@@ -55,7 +55,7 @@ if test "x$GCC" = "xyes"; then
     for flag in $DESIRED_CFLAGS; do
         AC_MSG_CHECKING([whether ${CC} accepts ${flag}])
         orig_CFLAGS="$CFLAGS"
-        CFLAGS="$flag $CFLAGS"
+        CFLAGS="$CFLAGS $flag"
 
         AC_COMPILE_IFELSE([int main() {}],
                           [AC_MSG_RESULT([yes])],
@@ -66,7 +66,7 @@ if test "x$GCC" = "xyes"; then
     for flag in $DESIRED_LDFLAGS; do
         AC_MSG_CHECKING([whether ${CC} accepts ${flag}])
         orig_LDFLAGS="$LDFLAGS"
-        LDFLAGS="$flag $LDFLAGS"
+        LDFLAGS="$LDFLAGS $flag"
 
         AC_LINK_IFELSE([int main() {}],
                        [AC_MSG_RESULT([yes])],
