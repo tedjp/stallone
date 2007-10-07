@@ -44,7 +44,7 @@ AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
 if test "x$GCC" = "xyes"; then
-    DESIRED_CFLAGS="-Wall -Wextra -Wno-unused -std=c99"
+    DESIRED_CFLAGS="-Wall -Wextra -std=c99"
     DESIRED_LDFLAGS="-Wl,-z,defs"
 
     # Add stricter flags in developer mode
