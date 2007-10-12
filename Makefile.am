@@ -22,15 +22,22 @@ SUBDIRS = \
       testclient \
    # end
 
+TESTS = \
+        $(check_PROGRAMS) \
+        # end
+
+
 pkgsysconfdir = $(sysconfdir)/avahi
 
 AM_CPPFLAGS = \
+    -I$(top_srcdir) \
     -DAVAHI_NATPMD_CONFIG_FILE=\"$(pkgsysconfdir)/avahi-natpmd.conf\" \
     -DAVAHI_NATPMD_ACTION_SCRIPT=\"$(pkgdatadir)/avahi-natpmd.action\" \
     -DAVAHI_NATPMD_CHROOT_DIR=\"$(localstatedir)/avahi-natpmd\" \
     # end
 
 sbin_PROGRAMS = stallone
+check_PROGRAMS = test-caps
 
 stallone_SOURCES = \
                        caps.c caps.h \
@@ -54,6 +61,15 @@ stallone_CPPFLAGS = \
                     $(AM_CPPFLAGS) \
                     -DNATPMD_DEFAULT_CONFIG_FILE=\"$(pkgsysconfdir)/natpmd.conf\" \
                     # end
+
+test_caps_SOURCES = \
+                    caps.c caps.h \
+                    test-caps.c \
+                    # end
+
+test_caps_LDADD = \
+                  $(LIBDAEMON_LIBS) \
+                  #end
 
 pkgdata_SCRIPTS = avahi-natpmd.action
 
