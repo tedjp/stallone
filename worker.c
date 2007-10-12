@@ -110,7 +110,7 @@ int worker(const char *mapping_script_file, int sock) {
     mapping_script = mapping_script_file;
 
     if (drop_caps() != 0)
-        return -1;
+        return 1;
 
     avahi_set_cloexec(sock);
     /* XXX: Audit to ensure no extra sockets are passed to the child */
@@ -274,7 +274,7 @@ int worker(const char *mapping_script_file, int sock) {
 
     if (siz == -1) { /* FIXME: EINTR / EAGAIN? */
         daemon_log(LOG_ERR, "%s: Error receiving on IPC socket", __FUNCTION__);
-        return -1;
+        return 1;
     }
     else {
         assert(siz == 0);
