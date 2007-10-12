@@ -48,17 +48,15 @@ if [ -z "$IPTABLES" ]; then
 fi
 
 ipt_clear () {
-    # The first two lines of output are headings
-    numrules=$((`$IPTABLES -t nat -L $TABLE 2>/dev/null | wc -l` - 2))
-    while [ $numrules -gt 0 ]; do
-        $IPTABLES -t nat -D $TABLE 1
-        let numrules -= 1
-    done
-    numrules=$((`$IPTABLES -t filter -L $TABLE 2>/dev/null | wc -l` - 2))
-    while [ $numrules -gt 0 ]; do
-        $IPTABLES -t filter -D $TABLE 1
-        let numrules -= 1
-    done
+    # Only flush the tables if they exist
+
+    if $IPTABLES -t nat -L $TABLE >/dev/null 2>&1; then
+        $IPTABLES -t nat -F $TABLE
+    fi
+
+    if $IPTABLES -t filter -L $TABLE >/dev/null 2>&1; then
+        $IPTABLES -t filter -F $TABLE
+    fi
 }
 
 # Validate the interface name exists
