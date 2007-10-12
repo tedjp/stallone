@@ -33,6 +33,7 @@ AM_CPPFLAGS = \
 sbin_PROGRAMS = stallone
 
 stallone_SOURCES = \
+                       caps.c caps.h \
                        common.c common.h \
                        interface.c interface.h \
                        ipc.c ipc.h \

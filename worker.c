@@ -21,10 +21,6 @@
 # include <config.h>
 #endif
 
-#ifdef HAVE_SYS_CAPABILITY_H
-# include <sys/capability.h>
-#endif
-
 #include <unistd.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -40,6 +36,7 @@
 #include <avahi-common/fdutil.h>
 #include <avahi-common/setproctitle.h>
 
+#include "caps.h"
 #include "common.h"
 #include "ipc.h"
 #include "worker.h"
@@ -72,46 +69,6 @@ static int op_add_remove(const AvahiNatpmdIPCReq *req);
 static int op_clear(const AvahiNatpmdIPCReq *req);
 static int op_prepare_cleanup(const AvahiNatpmdIPCReq *req);
 static void sigchld_handler(int sig);
-static int drop_caps(void);
-
-int drop_caps(void) {
-    int ret = 0;
-#if defined(HAVE_SYS_CAPABILITY_H) && defined(HAVE_LIBCAP)
-    cap_t caps;
-#if LIBCAP_MADE_THE_POINTER_CONST_LIKE_IT_SHOULD_HAVE_BEEN
-    const /* continues... */
-#endif
-    cap_value_t inherit_caps[] = { CAP_NET_ADMIN };
-    /* Not setting any effective or permitted flags, meaning this process
-     * wants to be totally incapable (except for its inheritable set) */
-    
-    caps = cap_init();
-    if (!caps)
-        return -1;
-
-    if (-1 == cap_set_flag(caps, CAP_INHERITABLE,
-            sizeof(inherit_caps) / sizeof(inherit_caps[0]),
-            inherit_caps, CAP_SET))
-    {
-        daemon_log(LOG_WARNING,
-                "%s: Unable to assign inheritable capabilities: %s",
-                __func__, strerror(errno));
-        ret = -1;
-        goto cleanup;
-    }
-
-    if (-1 == cap_set_proc(caps)) {
-        daemon_log(LOG_ERR, "%s: Unable to set reduced capability set: %s",
-                __func__, strerror(errno));
-        ret = -1;
-        goto cleanup;
-    }
-
-cleanup:
-    cap_free(caps);
-#endif /* libcap */
-    return ret;
-}
 
 /**
  * Return value is the process return value - zero on success or 1 on failure.
@@ -129,7 +86,7 @@ int worker(const char *mapping_script_file, int sock) {
 
     mapping_script = mapping_script_file;
 
-    if (drop_caps() != 0)
+    if (avahi_natpm_drop_caps() != 0)
         return 1;
 
     avahi_set_cloexec(sock);
