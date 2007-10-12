@@ -1,5 +1,0 @@
-TODO
-
-Drop unnecessary capabilities (especially in the root worker)
-
-Add the possibility for run-time configuration
