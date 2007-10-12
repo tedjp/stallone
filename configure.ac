@@ -75,9 +75,9 @@ if test "x$GCC" = "xyes"; then
     done
 fi
 
-AC_CHECK_HEADER([sys/capability.h])
+AC_CHECK_HEADERS([sys/capability.h])
 
-AC_CHECK_LIB([cap], [cap_init], [LIBS="$LIBS -lcap"])
+AC_CHECK_LIB([cap], [cap_init])
 
 PKG_CHECK_MODULES([LIBDAEMON], [libdaemon >= 0.5])
 AC_SUBST(LIBDAEMON_CFLAGS)
