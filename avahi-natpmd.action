@@ -54,6 +54,11 @@ ipt_clear () {
         $IPTABLES -t nat -D $TABLE 1
         let numrules -= 1
     done
+    numrules=$((`$IPTABLES -t filter -L $TABLE 2>/dev/null | wc -l` - 2))
+    while [ $numrules -gt 0 ]; do
+        $IPTABLES -t filter -D $TABLE 1
+        let numrules -= 1
+    done
 }
 
 # Validate the interface name exists
@@ -105,9 +110,12 @@ ipt_cleanup () {
         # Delete references
         $IPTABLES -t nat -D PREROUTING -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
         $IPTABLES -t nat -D PREROUTING -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
+        $IPTABLES -t filter -D FORWARD -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
+        $IPTABLES -t filter -D FORWARD -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
 
         # Delete table
         $IPTABLES -t nat -X $TABLE
+        $IPTABLES -t filter -X $TABLE
     fi
 }
 
@@ -125,6 +133,9 @@ ipt_prepare () {
     $IPTABLES -t nat -N $TABLE
     $IPTABLES -t nat -A PREROUTING -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
     $IPTABLES -t nat -A PREROUTING -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
+    $IPTABLES -t filter -N $TABLE
+    $IPTABLES -t filter -A FORWARD -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
+    $IPTABLES -t filter -A FORWARD -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
 }
 
 ipt_act () {
@@ -173,6 +184,7 @@ ipt_act () {
     fi
 
     $IPTABLES -t nat -$action $TABLE -p $2 --dport $3 -j DNAT --to $4:$5
+    $IPTABLES -t filter -$action $TABLE -p $2 -d $4 --dport $5 -j ACCEPT
 }
 
 case "$1" in
