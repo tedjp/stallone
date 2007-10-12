@@ -36,7 +36,6 @@ static int test_add_remove_count(void);
 static int test_find(void);
 static int test_find_hosts(void);
 static int test_find_single_host(void);
-static int test_map_same_port(void);
 static int test_expiry(void);
 
 int main(void) {
