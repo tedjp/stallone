@@ -125,6 +125,7 @@ AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_STAT
 AC_CHECK_FUNCS([\
                 alarm \
+                atexit \
                 gettimeofday \
                 memset \
                 mkdir \
@@ -137,8 +138,11 @@ AC_CHECK_FUNCS([\
                 setreuid \
                 socket \
                 strcasecmp \
+                strchr \
+                strcspn \
                 strerror \
                 strrchr \
+                strspn \
                 strtol \
                 ])
 
