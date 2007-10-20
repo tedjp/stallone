@@ -37,7 +37,10 @@ AM_CPPFLAGS = \
     # end
 
 sbin_PROGRAMS = stallone
-check_PROGRAMS = test-caps
+check_PROGRAMS = \
+                 test-caps \
+                 test-natpmd-config \
+                 # end
 
 stallone_SOURCES = \
                        caps.c caps.h \
@@ -70,6 +73,19 @@ test_caps_SOURCES = \
 test_caps_LDADD = \
                   $(LIBDAEMON_LIBS) \
                   #end
+
+test_natpmd_config_SOURCES = \
+                             test-natpmd-config.c \
+                             natpmd-config.c natpmd-config.h \
+                             # end
+test_natpmd_config_LDADD = \
+                           $(LIBDAEMON_LIBS) \
+                           $(top_builddir)/avahi-common/libavahi-common.a \
+                           # end
+
+test_natpmd_config_CPPFLAGS = \
+                              $(AM_CPPFLAGS) \
+                              # end
 
 pkgdata_SCRIPTS = avahi-natpmd.action
 

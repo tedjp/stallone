@@ -18,6 +18,7 @@ stallone-*.*.*
 stallone.8.html
 stamp-h1
 test-caps
+test-natpmd-config
 tags
 *.o
 *~
