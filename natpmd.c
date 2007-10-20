@@ -78,10 +78,6 @@
 
 #define MAX_MAPPING_LIFETIME    3600U
 
-#define DEFAULT_MIN_PORT 30800
-#define DEFAULT_MAX_PORT 30999
-#define NATPMD_CONFIG_SECTION "natpmd"
-
 
 /** types **/
 typedef struct AvahiNPQueueItem AvahiNPQueueItem;
