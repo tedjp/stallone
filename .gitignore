@@ -22,5 +22,10 @@ tags
 *.o
 *~
 
+# gcov files
+*.gcno
+*.gcov
+*.gcda
+
 autoscan.log
 configure.scan
