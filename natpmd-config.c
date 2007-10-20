@@ -142,7 +142,7 @@ static int apply_config(AvahiNatpmdConfig *cfg, const char *filename) {
         goto cleanup;
 
     /* Walk the config parsing [natpmd] sections (there may be several) */
-    for (group = file->groups; group; group = group->groups_prev) {
+    for (group = file->groups; group; group = group->groups_next) {
         if (strcmp(group->name, NATPMD_CONFIG_SECTION) == 0) {
             for (pair = group->pairs; pair; pair = pair->pairs_next) {
 
