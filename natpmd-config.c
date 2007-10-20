@@ -172,7 +172,8 @@ static int apply_config(AvahiNatpmdConfig *cfg, const char *filename) {
 
     if (cfg->min_port > cfg->max_port) {
         uint16_t tmp_port;
-        daemon_log(LOG_WARNING, "%s: min-port %hu is higher than max-port %hu,"
+        daemon_log(LOG_WARNING,
+                "%s: min-port %hu is higher than max-port %hu, "
                 "will assume they should be the other way around",
                 __func__, cfg->min_port, cfg->max_port);
         tmp_port = cfg->min_port;
