@@ -32,6 +32,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#include <avahi-common/gccmacro.h>
+
 #include "natpmd-config.h"
 
 /* TODO: Use the TMPDIR environment variable if it is set */
@@ -62,11 +64,44 @@ static void cleanup(void) {
     }
 }
 
+/**
+ * Write the given contents to the test file (tmpfilename).
+ * Returns -1 if there was a problem, 0 on success.
+ */
+static int write_testfile(const char *format, ...) AVAHI_GCC_PRINTF_ATTR12;
+static int write_testfile(const char *format, ...) {
+    int ok = 0;
+    FILE *testfile;
+    va_list ap;
+
+    testfile = fopen(tmpfilename, "w");
+    if (!testfile) {
+        fprintf(stderr,
+                "fopen tmpfile %s failed: %s", tmpfilename, strerror(errno));
+    } else {
+        /* Testfile written OK */
+        va_start(ap, format);
+        if (vfprintf(testfile, format, ap) < 0) {
+            fprintf(stderr, "vfprintf to tmpfile %s failed: %s",
+                    tmpfilename, strerror(errno));
+        } else {
+            ok = 1;
+        }
+        va_end(ap);
+
+        if (fclose(testfile) == -1) {
+            fprintf(stderr, "Problem closing test file: %s", strerror(errno));
+            /* file contents probably truncated -- will cause a failure */
+            ok = 0;
+        }
+    }
+    return ok ? 0 : -1;
+}
+
 int main(void) {
     int failures = 0;
     AvahiNatpmdConfig config;
     int fd;
-    FILE *testfile;
 
     memset(&config, '\0', sizeof(config));
 
@@ -89,15 +124,12 @@ int main(void) {
     }
     fd = -1;
 
-    testfile = fopen(tmpfilename, "w");
-    if (!testfile)
-        skip("fopen tmpfile %s failed: %s", tmpfilename, strerror(errno));
-
 #define TEST_MIN_PORT 123
 #define TEST_MAX_PORT 456
 #define TEST_MAPPING_SCRIPT "/some-mapping-script"
 
-    fprintf(testfile, "[%s]\n"
+    if (write_testfile(
+            "[%s]\n"
             "min-port=%d\n"
             "max-port=%d\n"
             "mapping-script=%s\n"
@@ -105,10 +137,8 @@ int main(void) {
             "[unrecognised-section]\n"
             "something=something-else\n",
             NATPMD_CONFIG_SECTION, TEST_MIN_PORT, TEST_MAX_PORT,
-            TEST_MAPPING_SCRIPT);
-
-    if (fclose(testfile) == -1)
-        skip("Problem closing test file: %s", strerror(errno));
+            TEST_MAPPING_SCRIPT) == -1)
+        skip("Cannot write testfile");
 
     /* Now for the testing */
     if (natpmd_config_load(&config, tmpfilename) != 0) {
@@ -137,6 +167,46 @@ int main(void) {
         }
 
         natpmd_config_cleanup(&config);
+    }
+
+    /* Ensure parsing a nonexistent file fails */
+#define NONEXIST_FILENAME "/nonexistent-file"
+    if (natpmd_config_load(&config, NONEXIST_FILENAME) != -1) {
+        /* I don't believe it. Ensure the file really doesn't exist */
+        struct stat sbuf;
+        if (stat(NONEXIST_FILENAME, &sbuf) == -1 && errno == ENOENT) {
+            fprintf(stderr, "Successfully loaded config from a non-existent "
+                    "file. WTF?\n");
+            ++failures;
+        }
+    }
+
+    /* Test invalid port string */
+    if (write_testfile(
+            "[%s]\n"
+            "min-port=0\n",
+            NATPMD_CONFIG_SECTION) == -1)
+        skip("Problem writing testfile");
+
+    if (natpmd_config_load(&config, tmpfilename) == 0 &&
+            config.min_port < 1) {
+        fprintf(stderr, "Received invalid port number zero\n");
+        ++failures;
+    }
+
+    /* Test inverted min/max values */
+    if (write_testfile(
+                "[%s]\n"
+                "min-port=2345\n"
+                "max-port=1234\n",
+                NATPMD_CONFIG_SECTION) == -1)
+        skip("Problem writing testfile");
+
+    natpmd_config_load(&config, tmpfilename);
+    if (config.min_port > config.max_port) {
+        fprintf(stderr, "min-port %hu is greater than max-port %hu\n",
+                config.min_port, config.max_port);
+        ++failures;
     }
 
     return !!failures;
