@@ -39,7 +39,7 @@ struct AvahiNatpmdConfig {
 int natpmd_config_load(AvahiNatpmdConfig *cfg, const char *filename);
 void natpmd_config_cleanup(AvahiNatpmdConfig *cfg);
 
-void natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filename);
+int natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filename);
 
 AVAHI_C_DECL_END
 

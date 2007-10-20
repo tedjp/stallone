@@ -65,9 +65,10 @@ int natpmd_config_load(AvahiNatpmdConfig *cfg, const char *filename) {
 /**
  * Sets the action script.
  *
- * Calls exit() if there is any problem.
+ * Returns 0 on success or -1 if there was a problem.
+ * On error, the config's mapping script is undefined.
  */
-void natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filename) {
+int natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filename) {
 
     assert(cfg);
     assert(filename);
@@ -80,7 +81,7 @@ void natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filena
         daemon_log(LOG_ERR,
                 "%s: Action script \"%s\" must be an absolute pathname",
                 __func__, filename);
-        exit(1);
+        return -1;
     }
 
     avahi_free(cfg->mapping_script);
@@ -88,8 +89,10 @@ void natpmd_config_set_mapping_script(AvahiNatpmdConfig *cfg, const char *filena
     cfg->mapping_script = avahi_strdup(filename);
     if (!cfg->mapping_script) {
         daemon_log(LOG_ERR, "%s: Out of memory, failing", __func__);
-        exit(1);
+        return -1;
     }
+
+    return 0;
 }
 
 /**
