@@ -25,8 +25,8 @@ OPTIONS
 -------
 
 -c, --check::
-	Check whether a stallone process is already running. Returns 0
-	(success) if one is running and 1 if one is not.
+        Check whether a stallone process is already running. Returns 0
+        (success) if one is running and 1 if one is not.
 
 -D, --daemonize::
         Detach from the terminal and run as a background daemon. Implies `-s`.
@@ -35,16 +35,16 @@ OPTIONS
         Provide a list of options.
 
 -k, --kill::
-	Kill an existing stallone process.
+        Kill an existing stallone process.
 
 --no-chroot::
-	Don't chroot(2) the daemon (usually only for debugging).
+        Don't chroot(2) the daemon (usually only for debugging).
 
 -s, --syslog::
         Send log messages to syslog instead of (`stderr`) (implied by `-D`).
 
 -V, --version::
-	Display stallone's version number and exit.
+        Display stallone's version number and exit.
 
 
 ABOUT
@@ -90,4 +90,4 @@ SEE ALSO
 
 Home page: http://tedp.id.au/stallone/[]
 
-// vim: tw=72 ts=8 sw=8
+// vim: tw=72 ts=8 sw=8 et
