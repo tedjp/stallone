@@ -285,32 +285,32 @@ static int drop_privs(void) {
 
     /* Create directory */
     u = umask(0000);
-    r = mkdir(AVAHI_NATPMD_CHROOT_DIR, 0755);
+    r = mkdir(NATPMD_CHROOT_DIR, 0755);
     umask(u);
     
     if (r < 0 && errno != EEXIST) {
-        daemon_log(LOG_ERR, "mkdir(\""AVAHI_NATPMD_CHROOT_DIR"\"): %s", strerror(errno));
+        daemon_log(LOG_ERR, "mkdir(\""NATPMD_CHROOT_DIR"\"): %s", strerror(errno));
         return -1;
     }
 
     /* Convey working directory */
     
-    chown(AVAHI_NATPMD_CHROOT_DIR, pw->pw_uid, gr->gr_gid);
+    chown(NATPMD_CHROOT_DIR, pw->pw_uid, gr->gr_gid);
     
-    if (stat(AVAHI_NATPMD_CHROOT_DIR, &st) < 0) {
+    if (stat(NATPMD_CHROOT_DIR, &st) < 0) {
         daemon_log(LOG_ERR, "stat(): %s\n", strerror(errno));
         return -1;
     }
     
     if (!S_ISDIR(st.st_mode) || st.st_uid != pw->pw_uid || st.st_gid != gr->gr_gid) {
-        daemon_log(LOG_ERR, "Failed to create runtime directory "AVAHI_NATPMD_CHROOT_DIR".");
+        daemon_log(LOG_ERR, "Failed to create runtime directory "NATPMD_CHROOT_DIR".");
         return -1;
     }
 
 #ifdef HAVE_CHROOT
 
     if (do_chroot) {
-        if (chroot(AVAHI_NATPMD_CHROOT_DIR) < 0) {
+        if (chroot(NATPMD_CHROOT_DIR) < 0) {
             if (geteuid() != 0) {
                 daemon_log(LOG_ERR,
                         "Failed to chroot(): %s. You probably need to start %s as root.",
@@ -384,12 +384,12 @@ static void help(FILE *file, const char *a0) {
             "    -c --check          Return 0 if a daemon is already running\n"
             "    -D --daemonize      Daemonize after startup\n"
             "    -f --file=FILE      Load the specified configuration file instead of\n"
-            "                        " AVAHI_NATPMD_CONFIG_FILE "\n"
+            "                        " NATPMD_DEFAULT_CONFIG_FILE "\n"
             "    -h --help           Show this help\n"
             "    -k --kill           Kill a running daemon\n"
             "    -s --syslog         Write log messages to syslog(3) instead of STDERR\n"
-            "    -t --script=SCRIPT  Action script to run (defaults to\n"
-            "                        " AVAHI_NATPMD_ACTION_SCRIPT ")\n"
+            "    -t --script=SCRIPT  Mapping script to run (defaults to\n"
+            "                        " NATPMD_DEFAULT_MAPPING_SCRIPT ")\n"
             "    -V --version        Show version\n"
 #if 0 /* unused */
             "       --debug          Increase verbosity\n"

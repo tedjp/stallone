@@ -26,10 +26,14 @@ OPTIONS
 
 -c, --check::
         Check whether a stallone process is already running. Returns 0
-        (success) if one is running and 1 if one is not.
+        (success) if there is one is running and 1 if there is not.
 
 -D, --daemonize::
         Detach from the terminal and run as a background daemon. Implies `-s`.
+
+-f, --config::
+        File to read configuration from instead of the default
+        `@NATPMD_DEFAULT_CONFIG_FILE@`
 
 -h, --help::
         Provide a list of options.
@@ -38,7 +42,7 @@ OPTIONS
         Kill an existing stallone process.
 
 --no-chroot::
-        Don't chroot(2) the daemon (usually only for debugging).
+        Don't `chroot(2)` the daemon (usually only for debugging).
 
 -s, --syslog::
         Send log messages to syslog instead of (`stderr`) (implied by `-D`).
@@ -60,16 +64,23 @@ automatically.
 CONFIGURATION
 -------------
 
-Configuration of Stallone is currently only available through
-compile-time options or by editing the source code directly. Adding
-support for run-time configuration is high on the TODO list. See the
-output of `./configure --help` when building from source for a list of options.
+The default configuration file is @NATPMD_DEFAULT_CONFIG_FILE@, but
+another may be used by providing the `--config` (`-f`) option at
+startup.
+
+The following configuration options are available, shown here with their
+default values.
+
+  [natpmd]
+  min-port=@NATPMD_DEFAULT_MIN_PORT@
+  max-port=@NATPMD_DEFAULT_MAX_PORT@
+  mapping-script=@NATPMD_DEFAULT_MAPPING_SCRIPT@
 
 
 BUGS
 ----
 
-Please report bugs to http://lazypants.org/bugzilla/[]
+Please report bugs to http://lazypants.org/bugzilla/[].
 
 
 SECURITY
