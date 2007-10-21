@@ -30,8 +30,6 @@
 
 #include "natpmd-config.h"
 
-#define DEFAULT_MIN_PORT 30800
-#define DEFAULT_MAX_PORT 30999
 #define NATPMD_CONFIG_SECTION "natpmd"
 
 static int apply_config(AvahiNatpmdConfig *cfg, const char *filename);
@@ -49,10 +47,10 @@ int natpmd_config_load(AvahiNatpmdConfig *cfg, const char *filename) {
 
     /* Default config options */
     {
-        cfg->min_port = DEFAULT_MIN_PORT;
-        cfg->max_port = DEFAULT_MAX_PORT;
+        cfg->min_port = NATPMD_DEFAULT_MIN_PORT;
+        cfg->max_port = NATPMD_DEFAULT_MAX_PORT;
 
-        cfg->mapping_script = avahi_strdup(AVAHI_NATPMD_ACTION_SCRIPT);
+        cfg->mapping_script = avahi_strdup(NATPMD_DEFAULT_MAPPING_SCRIPT);
         if (!cfg->mapping_script) {
             daemon_log(LOG_ERR, "%s: Out of memory", __func__);
             return -1;

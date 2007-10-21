@@ -146,10 +146,6 @@ AC_CHECK_FUNCS([\
                 strtol \
                 ])
 
-dnl TODO: Make this configurable
-dnl AC_DEFINE_UNQUOTED(NATPMD_DEFAULT_CONFIG_FILE, "$pkgsysconfdir/natpmd.conf",
-dnl                   [Configuration file location])
-
 #
 # Avahi-natpmd users & groups
 #
@@ -175,7 +171,8 @@ AC_DEFINE_UNQUOTED(AVAHI_NATPMD_GROUP,"$AVAHI_NATPMD_GROUP", [iGroup for the dae
 AC_CONFIG_FILES([Makefile
                  tests/Makefile
                  testclient/Makefile
-                 avahi-common/Makefile])
+                 avahi-common/Makefile
+                 ])
 AC_OUTPUT
 
 # vim: ts=4 sw=4 et
