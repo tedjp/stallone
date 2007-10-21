@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 
-pkgsysconfdir = $(sysconfdir)/avahi
+pkgsysconfdir = $(sysconfdir)/stallone
 
 NATPMD_DEFAULT_CONFIG_FILE = $(pkgsysconfdir)/natpmd.conf
 NATPMD_DEFAULT_MAPPING_SCRIPT = $(pkgdatadir)/natpmd.action
