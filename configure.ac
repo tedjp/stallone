@@ -167,11 +167,11 @@ fi
 AC_SUBST(AVAHI_NATPMD_GROUP)
 AC_DEFINE_UNQUOTED(AVAHI_NATPMD_GROUP,"$AVAHI_NATPMD_GROUP", [iGroup for the daemon to run as by default])
 
-
 AC_CONFIG_FILES([Makefile
                  tests/Makefile
                  testclient/Makefile
                  avahi-common/Makefile
+                 man/Makefile
                  ])
 AC_OUTPUT
 
