@@ -92,10 +92,10 @@ test_natpmd_config_CPPFLAGS = \
                               $(AM_CPPFLAGS) \
                               # end
 
-pkgdata_SCRIPTS = avahi-natpmd.action
+pkgdata_SCRIPTS = stallone.action
 
 EXTRA_DIST = \
-             avahi-natpmd.action \
+             stallone.action \
              NEWS \
              # end
 
