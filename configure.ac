@@ -34,6 +34,7 @@ if test "$enable_developer_mode" = "yes"; then
 fi
 
 AM_MAINTAINER_MODE
+AM_CONDITIONAL([USE_MAINTAINER_MODE], [test "$USE_MAINTAINER_MODE" = "yes"])
 
 # Checks for programs.
 AC_PROG_CC

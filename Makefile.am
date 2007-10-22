@@ -24,9 +24,11 @@ SUBDIRS = \
       testclient \
    # end
 
-DIST_SUBDIRS = $(SUBDIRS) \
-               man \
-               # end
+if USE_MAINTAINER_MODE
+SUBDIRS += man
+else
+DIST_SUBDIRS = $(SUBDIRS)
+endif
 
 TESTS = \
         $(check_PROGRAMS) \
