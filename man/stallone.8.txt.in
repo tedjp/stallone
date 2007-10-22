@@ -31,8 +31,8 @@ OPTIONS
 -D, --daemonize::
         Detach from the terminal and run as a background daemon. Implies `-s`.
 
--f, --config::
-        File to read configuration from instead of the default
+-f, --config `FILE`::
+        Read configuration from `FILE` instead of the default
         `@NATPMD_DEFAULT_CONFIG_FILE@`
 
 -h, --help::
