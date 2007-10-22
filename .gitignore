@@ -15,7 +15,11 @@ missing
 stallone
 # For `make distcheck`: the tarball and the unpacked dir
 stallone-*.*.*
+# Manpages
+stallone.8
 stallone.8.html
+stallone.8.txt
+stallone.8.xml
 stamp-h1
 test-caps
 test-natpmd-config
