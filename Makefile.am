@@ -94,6 +94,7 @@ pkgdata_SCRIPTS = stallone.action
 EXTRA_DIST = \
              stallone.action \
              NEWS \
+             INSTALL \
              # end
 
 # vim: ts=4 sw=4 et tw=80
