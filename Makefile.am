@@ -20,15 +20,10 @@ include $(top_srcdir)/Makefile.am.common
 
 SUBDIRS = \
       avahi-common \
+      man \
       tests \
       testclient \
    # end
-
-if USE_MAINTAINER_MODE
-SUBDIRS += man
-else
-DIST_SUBDIRS = $(SUBDIRS)
-endif
 
 TESTS = \
         $(check_PROGRAMS) \

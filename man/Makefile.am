@@ -26,6 +26,7 @@ stallone.8.txt: stallone.8.txt.in
 	    -e 's,@NATPMD_DEFAULT_MAX_PORT@,$(NATPMD_DEFAULT_MAX_PORT),g' \
 	    < $^ >> $@
 
+if MAINTAINER_MODE
 #if HAVE_ASCIIDOC
 stallone.8.html: stallone.8.txt
 	asciidoc -d manpage $^
@@ -39,6 +40,7 @@ stallone.8: stallone.8.xml
 
 #endif # HAVE_XSLTPROC
 #endif # HAVE_ASCIIDOC
+endif # MAINTAINER_MODE
 
 dist_man_MANS = stallone.8
 
