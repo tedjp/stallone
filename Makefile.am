@@ -89,12 +89,28 @@ test_natpmd_config_CPPFLAGS = \
                               $(AM_CPPFLAGS) \
                               # end
 
-pkgdata_SCRIPTS = stallone.action
+pkgdata_SCRIPTS = natpmd.action
+
+pkgsysconf_DATA = \
+                  natpmd.conf \
+                  # end
 
 EXTRA_DIST = \
-             stallone.action \
+             natpmd.action \
              NEWS \
              INSTALL \
+             natpmd.conf.in \
              # end
 
-# vim: ts=4 sw=4 et tw=80
+natpmd.conf: natpmd.conf.in
+	sed \
+	    -e 's,@NATPMD_DEFAULT_MAPPING_SCRIPT@,$(NATPMD_DEFAULT_MAPPING_SCRIPT),g' \
+	    -e 's,@NATPMD_MIN_PORT@,$(NATPMD_MIN_PORT),g' \
+	    -e 's,@NATPMD_MAX_PORT@,$(NATPMD_MAX_PORT),g' \
+	    < $^ > $@
+
+CLEANFILES = \
+			 natpmd.conf \
+			 #
+
+# vim: ts=4 sw=4 tw=80

@@ -1,0 +1,8 @@
+# Configuration file for the Stallone NAT-PMP gateway daemon
+# See stallone(8) for a description of the options.
+# This file follows a strict ini-like syntax.
+
+[natpmd]
+  min-port=30800
+  max-port=30999
+  mapping-script=/usr/local/share/stallone/natpmd.action
