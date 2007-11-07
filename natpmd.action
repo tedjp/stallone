@@ -38,7 +38,7 @@ set -e
 #     PROTOCOL  PUBLIC-PORT  DEST-ADDR     DEST-PORT
 # eg. TCP       9000         192.168.1.27  9000
 
-LANG=C # XXX: Might also need LANGUAGE and LC_* vars
+LC_ALL=C
 TABLE='AVAHI-NATPM'
 
 IPTABLES=`which iptables || true`
