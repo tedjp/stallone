@@ -39,7 +39,7 @@ set -e
 # eg. TCP       9000         192.168.1.27  9000
 
 LC_ALL=C
-TABLE='AVAHI-NATPM'
+TABLE='STALLONE-NATPMD'
 
 IPTABLES=`which iptables || true`
 if [ -z "$IPTABLES" ]; then
