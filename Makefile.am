@@ -99,6 +99,7 @@ EXTRA_DIST = \
              natpmd.action \
              NEWS \
              INSTALL \
+	     THANKS \
              natpmd.conf.in \
              # end
 
@@ -113,4 +114,4 @@ CLEANFILES = \
 			 natpmd.conf \
 			 #
 
-# vim: ts=4 sw=4 tw=80
+# vim: ts=8 sw=4 tw=80
