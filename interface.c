@@ -48,6 +48,9 @@ AvahiNatpmInterface *avahi_natpm_get_public_interface_auto(void) {
         return NULL;
 
     for (ifaddr = ifaddrs_top; ifaddr; ifaddr = ifaddr->ifa_next) {
+        if (!ifaddr->ifa_addr)
+            continue;
+
         if (ifaddr->ifa_addr->sa_family == AF_INET) {
             const struct sockaddr_in *sin = (struct sockaddr_in*)ifaddr->ifa_addr;
 
