@@ -37,10 +37,10 @@ if HAVE_XSLTPROC
 stallone.8: stallone.8.xml
 	$(XSLTPROC) --nonet /usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl $^
 
+dist_man_MANS = stallone.8
+
 endif # HAVE_XSLTPROC
 endif # HAVE_ASCIIDOC
-
-dist_man_MANS = stallone.8
 
 EXTRA_DIST = stallone.8.txt.in
 
