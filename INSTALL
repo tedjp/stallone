@@ -1,17 +1,9 @@
-Stallone uses the familiar autotools sequence to build.
+Stallone uses the familiar autotools sequence to build. The familiar
+`./configure && make` commands are used to compile.
 
-If you check out this source from a repository, you will need to have
-autoconf & automake installed. Then run:
-  autoreconf
-
-If you get a message about missing files, run
-  autoreconf --install
-
-Those who download a tarball (.tar.gz) or are building from a source
-repository checkout should run the following commands to build.
-
-  ./configure
-  make
+In addition, checkouts from source (rather than from a .tar.gz archive)
+will first require running `./bootstrap.sh` to create some initial
+files. You will need autoconf & automake installed for this step.
 
 Use `./configure --help` to see build-time configuration options.
 
