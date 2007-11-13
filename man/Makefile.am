@@ -44,6 +44,6 @@ dist_man_MANS = stallone.8
 
 EXTRA_DIST = stallone.8.txt.in
 
-DISTCLEANFILES = stallone.8.txt stallone.8.xml
+DISTCLEANFILES = stallone.8.txt stallone.8.xml stallone.8
 
 # vim: ts=4 sw=4 et tw=80

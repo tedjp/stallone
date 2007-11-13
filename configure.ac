@@ -25,17 +25,6 @@ AC_CONFIG_SRCDIR([common.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([foreign check-news -Wall])
 
-AC_ARG_ENABLE([developer-mode],
-              [AS_HELP_STRING([--enable-developer-mode],
-                              [Turns on maintainer-mode and stricter compiler options])])
-if test "$enable_developer_mode" = "yes"; then
-    enable_maintainer_mode=yes
-    # More developer options are turned on further down this file
-fi
-
-AM_MAINTAINER_MODE
-AM_CONDITIONAL([USE_MAINTAINER_MODE], [test "$USE_MAINTAINER_MODE" = "yes"])
-
 # Checks for programs.
 AC_PROG_CC
 
@@ -50,6 +39,11 @@ AC_GNU_SOURCE
 AC_PROG_RANLIB
 # Used for tests/coverage
 AM_PROG_CC_C_O
+
+AC_ARG_ENABLE([developer-mode],
+              [AS_HELP_STRING([--enable-developer-mode],
+                              [Turns on stricter compiler options])])
+AM_CONDITIONAL([DEVELOPER_MODE], [test "$enable_developer_mode" = "yes"])
 
 if test "x$GCC" = "xyes"; then
     DESIRED_CFLAGS="-Wall -Wextra -std=c99 -g"
