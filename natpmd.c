@@ -1625,6 +1625,11 @@ int main(int argc, char *argv[]) {
     if (parse_command_line(argc, argv) < 0)
         goto finish;
 
+    if (command == DAEMON_HELP) {
+        help(stdout, argv0);
+        exit(0);
+    }
+
     if (natpmd_config_load(&config, config_filename) != 0)
         goto finish;
 
@@ -1654,14 +1659,12 @@ int main(int argc, char *argv[]) {
             ret = 0;
             break;
 
-        case DAEMON_HELP:
-            help(stdout, argv0);
-            ret = 0;
-            break;
-
         case DAEMON_CHECK:
             ret = (daemon_pid_file_is_running() >= 0) ? 0 : 1;
             break;
+
+        default:
+            daemon_log(LOG_ERR, "%s: Unhandled command %d", __func__, command);
     }
 
 finish:
