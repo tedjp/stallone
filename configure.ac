@@ -38,7 +38,13 @@ AM_CONDITIONAL([USE_MAINTAINER_MODE], [test "$USE_MAINTAINER_MODE" = "yes"])
 
 # Checks for programs.
 AC_PROG_CC
+
 AC_PATH_PROG([XSLTPROC], [xsltproc])
+AM_CONDITIONAL([HAVE_XSLTPROC], [test -n "$XSLTPROC"])
+
+AC_PATH_PROG([ASCIIDOC], [asciidoc])
+AM_CONDITIONAL([HAVE_ASCIIDOC], [test -n "$ASCIIDOC"])
+
 AC_GNU_SOURCE
 # For libavahi-common
 AC_PROG_RANLIB

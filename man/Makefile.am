@@ -26,21 +26,19 @@ stallone.8.txt: stallone.8.txt.in
 	    -e 's,@NATPMD_DEFAULT_MAX_PORT@,$(NATPMD_DEFAULT_MAX_PORT),g' \
 	    < $^ >> $@
 
-if MAINTAINER_MODE
-#if HAVE_ASCIIDOC
+if HAVE_ASCIIDOC
 stallone.8.html: stallone.8.txt
-	asciidoc -d manpage $^
+	$(ASCIIDOC) -d manpage $^
 
 stallone.8.xml: stallone.8.txt
-	asciidoc -d manpage -b docbook $^
+	$(ASCIIDOC) -d manpage -b docbook $^
 
-#if HAVE_XSLTPROC
+if HAVE_XSLTPROC
 stallone.8: stallone.8.xml
-	$(XSLTPROC) --nonet /usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl stallone.8.xml
+	$(XSLTPROC) --nonet /usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl $^
 
-#endif # HAVE_XSLTPROC
-#endif # HAVE_ASCIIDOC
-endif # MAINTAINER_MODE
+endif # HAVE_XSLTPROC
+endif # HAVE_ASCIIDOC
 
 dist_man_MANS = stallone.8
 
