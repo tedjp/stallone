@@ -31,6 +31,10 @@
 #include <errno.h>
 #include <ctype.h>
 
+#if !DAEMON_LOGV_AVAILABLE
+# include <stdlib.h>
+#endif
+
 #include <avahi-common/malloc.h>
 #ifdef NATPMD_STANDALONE
 # include <libdaemon/dlog.h>
@@ -41,6 +45,17 @@
 #include "ini-file-parser.h"
 
 #ifdef NATPMD_STANDALONE
+# if !DAEMON_LOGV_AVAILABLE
+void daemon_logv(int prio, const char *fmt, va_list ap) {
+    char *str;
+
+    if (vasprintf(&str, fmt, ap) == -1)
+        return;
+    daemon_log(prio, str);
+    free(str);
+}
+# endif /* !DAEMON_LOGV_AVAILABLE */
+
 static void avahi_log_error(const char *msg, ...) {
 	va_list ap;
 	va_start(ap, msg);

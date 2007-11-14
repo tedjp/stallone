@@ -84,6 +84,7 @@ AC_CHECK_LIB([cap], [cap_init])
 PKG_CHECK_MODULES([LIBDAEMON], [libdaemon >= 0.5])
 AC_SUBST(LIBDAEMON_CFLAGS)
 AC_SUBST(LIBDAEMON_LIBS)
+AC_CHECK_LIB([daemon], [daemon_log])
 
 # Checks for header files.
 AC_HEADER_STDC
