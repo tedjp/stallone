@@ -28,11 +28,8 @@ AM_INIT_AUTOMAKE([foreign check-news -Wall])
 # Checks for programs.
 AC_PROG_CC
 
-AC_PATH_PROG([XSLTPROC], [xsltproc])
-AM_CONDITIONAL([HAVE_XSLTPROC], [test -n "$XSLTPROC"])
-
-AC_PATH_PROG([ASCIIDOC], [asciidoc])
-AM_CONDITIONAL([HAVE_ASCIIDOC], [test -n "$ASCIIDOC"])
+AC_PATH_PROG([A2X], [a2x])
+AM_CONDITIONAL([HAVE_A2X], [test -n "$A2X"])
 
 AC_GNU_SOURCE
 # For libavahi-common
