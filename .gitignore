@@ -12,6 +12,7 @@ configure
 depcomp
 install-sh
 missing
+natpmd.conf
 stallone
 # For `make distcheck`: the tarball and the unpacked dir
 stallone-*.*.*
