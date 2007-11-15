@@ -204,7 +204,7 @@ static void op_map(int argc, char *argv[]) {
             exit(1);
         }
         /* priv */
-        pkt.data.u16[2] = port;
+        pkt.data.u16[2] = htons(port);
 
         port = strtol(argv[ARG_PUBPORT], &ptr, 0);
         if (*ptr != '\0' || port < 0 || port > UINT16_MAX) {
@@ -212,7 +212,7 @@ static void op_map(int argc, char *argv[]) {
             exit(1);
         }
         /* pub */
-        pkt.data.u16[3] = port;
+        pkt.data.u16[3] = htons(port);
     }
 
     /* time */
@@ -229,9 +229,9 @@ static void op_map(int argc, char *argv[]) {
         if (*ptr != '\0' || signed_secs < 0 || secs > UINT32_MAX) {
             fprintf(stderr, "Bad lifetime %s, using %u instead.\n",
                     argv[ARG_TIME], DEFAULT_MAP_LIFETIME);
-            pkt.data.u32[2] = DEFAULT_MAP_LIFETIME;
+            pkt.data.u32[2] = htonl(DEFAULT_MAP_LIFETIME);
         } else {
-            pkt.data.u32[2] = secs;
+            pkt.data.u32[2] = htonl(secs);
         }
     }
 
