@@ -3,6 +3,6 @@
 # This file follows a strict ini-like syntax.
 
 [natpmd]
-  min-port=30800
-  max-port=30999
-  mapping-script=/usr/local/share/stallone/natpmd.action
+  min-port=@NATPMD_DEFAULT_MIN_PORT@
+  max-port=@NATPMD_DEFAULT_MAX_PORT@
+  mapping-script=@NATPMD_DEFAULT_MAPPING_SCRIPT@

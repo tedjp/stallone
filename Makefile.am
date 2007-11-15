@@ -106,8 +106,8 @@ EXTRA_DIST = \
 natpmd.conf: natpmd.conf.in
 	sed \
 	    -e 's,@NATPMD_DEFAULT_MAPPING_SCRIPT@,$(NATPMD_DEFAULT_MAPPING_SCRIPT),g' \
-	    -e 's,@NATPMD_MIN_PORT@,$(NATPMD_MIN_PORT),g' \
-	    -e 's,@NATPMD_MAX_PORT@,$(NATPMD_MAX_PORT),g' \
+	    -e 's,@NATPMD_DEFAULT_MIN_PORT@,$(NATPMD_DEFAULT_MIN_PORT),g' \
+	    -e 's,@NATPMD_DEFAULT_MAX_PORT@,$(NATPMD_DEFAULT_MAX_PORT),g' \
 	    < $^ > $@
 
 CLEANFILES = \
