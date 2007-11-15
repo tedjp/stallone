@@ -1,8 +1,8 @@
 Stallone uses the familiar autotools sequence to build. The familiar
 `./configure && make` commands are used to compile.
 
-In addition, checkouts from source (rather than from a .tar.gz archive)
-will first require running `./bootstrap.sh` to create some initial
+In addition, checkouts from Git (rather than from a .tar.gz archive)
+will first require running `./autogen.sh` to create some initial
 files. You will need autoconf & automake installed for this step.
 
 Use `./configure --help` to see build-time configuration options.
