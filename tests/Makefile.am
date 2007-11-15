@@ -58,4 +58,4 @@ test_interface_vis_LDADD = $(AM_LDADD) $(LIBDAEMON_LIBS) \
 
 .PHONY: coverage
 
-# vim: ts=4 sw=4 et tw=80
+# vim: ts=4 sw=4 tw=80

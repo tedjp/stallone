@@ -24,4 +24,4 @@ NATPMD_DEFAULT_MIN_PORT = 30800
 NATPMD_DEFAULT_MAX_PORT = 30999
 NATPMD_CHROOT_DIR = $(localstatedir)
 
-# vim: ts=4 sw=4 et tw=80
+# vim: ts=4 sw=4 tw=80

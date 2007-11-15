@@ -31,4 +31,4 @@ testclient_SOURCES = \
 testclient_LDADD = \
                      $(top_builddir)/avahi-common/libavahi-common.a
 
-# vim: ts=4 sw=4 et tw=80
+# vim: ts=4 sw=4 tw=80
