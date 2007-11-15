@@ -988,6 +988,10 @@ void map_port(AvahiNPPacket *response, uint32_t lifetime, uint16_t priv_port, ui
         if ((proto == NATPMP_MAP_TCP && map->tcp.state == PORT_MAPPED)
                 || (proto == NATPMP_MAP_UDP && map->udp.state == PORT_MAPPED)) {
 
+            /* Client might have got the public port wrong, ensure we tell it
+             * the right thing. */
+            response->data.u16[5] = htons(map->public_port);
+
             daemon_log(LOG_DEBUG, "%s: Mapping already active, updating lifetime and sending success.",
                     __FUNCTION__);
 
