@@ -1,4 +1,4 @@
-Stallone uses the familiar autotools sequence to build. The familiar
+Stallone uses GNU autotools to build. The familiar
 `./configure && make` commands are used to compile.
 
 In addition, checkouts from Git (rather than from a .tar.gz archive)
@@ -8,6 +8,8 @@ files. You will need autoconf & automake installed for this step.
 Use `./configure --help` to see build-time configuration options.
 
 To install, run `make install`. You will probably need root privileges
-to do this (eg. using sudo).
+to do this (eg. using sudo). Beware that this will install a default
+configuration file (natpmd.conf) which could overwrite an existing
+configuration file if one exists.
 
 # vim: tw=72
