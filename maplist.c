@@ -423,7 +423,7 @@ int avahi_natpm_maplist_find(
     AvahiNatpmMap *it, **dest = NULL;
     /* These could be made file-scope static and the allocation could be reused
      * to avoid thrashing the heap. */
-    int count = 0, allocnum;
+    int count = 0, allocnum = INITIAL_ALLOC;
 
     if (!initialised)
         return -1;

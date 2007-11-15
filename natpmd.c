@@ -1382,7 +1382,7 @@ end:
  * maps that are going to expire.
  */
 void update_timer(void) {
-    struct timespec next_retrans;
+    struct timespec next_retrans = { 0, 0 };
     time_t exp;
     
     exp = avahi_natpm_maplist_next_expiration();
