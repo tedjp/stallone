@@ -1,15 +1,44 @@
-Stallone uses GNU autotools to build. The familiar
-`./configure && make` commands are used to compile.
+INSTALLING STALLONE
+-------------------
 
-In addition, checkouts from Git (rather than from a .tar.gz archive)
-will first require running `./autogen.sh` to create some initial
-files. You will need autoconf & automake installed for this step.
+Stallone uses the GNU autotools to build itself.  If you
+downloaded the Stallone source code and wish to compile it
+yourself simply follow the steps below.
 
-Use `./configure --help` to see build-time configuration options.
+Dependencies
+------------
+Ensure that your system has the following dependencies installed
+prior to building Stallone.
 
-To install, run `make install`. You will probably need root privileges
-to do this (eg. using sudo). Beware that this will install a default
-configuration file (natpmd.conf) which could overwrite an existing
-configuration file if one exists.
+autoconf
+automake
+asciidoc
+
+Building Stallone
+-----------------
+
+./autogen.sh   (required for initial Git clones of source code)
+./configure    (./configure --help will show build-time options)
+make
+
+Installing Stallone
+-------------------
+
+'make install'
+
+OR
+
+'sudo make install'
+
+Beware that this will install a default configuration file (natpmd.conf)
+which could overwrite an existing configuration file if one exists.
+
+By default Stallone installs itself in the /usr/local directory tree.
+The main Stallone config file can be found in
+'/usr/local/etc/stallone/natpmd.conf'.
+
+You can read more about Stallone configuration from the man page that is
+installed with 'man stallone'.
+
 
 # vim: tw=72
