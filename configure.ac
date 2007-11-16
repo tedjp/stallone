@@ -151,21 +151,21 @@ AC_CHECK_FUNCS([\
 #
 AC_ARG_WITH(natpmd_user, AS_HELP_STRING([--with-natpmd-user=<user>],[User for the daemon to run as by default (default=nobody)]))
 if test -z "$with_natpmd_user" ; then
-    AVAHI_NATPMD_USER=nobody
+    NATPMD_USER=nobody
 else
-    AVAHI_NATPMD_USER=$with_natpmd_user
+    NATPMD_USER=$with_natpmd_user
 fi
-AC_SUBST(AVAHI_NATPMD_USER)
-AC_DEFINE_UNQUOTED(AVAHI_NATPMD_USER,"$AVAHI_NATPMD_USER", [User for the daemon to run as by default])
+AC_SUBST(NATPMD_USER)
+AC_DEFINE_UNQUOTED(NATPMD_USER,"$NATPMD_USER", [User for the daemon to run as by default])
 
 AC_ARG_WITH(natpmd_group,AS_HELP_STRING([--with-natpmd-group=<group>],[Group for the daemon to run as by default (default=nogroup)]))
 if test -z "$with_natpmd_group" ; then
-    AVAHI_NATPMD_GROUP=nogroup
+    NATPMD_GROUP=nogroup
 else
-    AVAHI_NATPMD_GROUP=$with_natpmd_group
+    NATPMD_GROUP=$with_natpmd_group
 fi
-AC_SUBST(AVAHI_NATPMD_GROUP)
-AC_DEFINE_UNQUOTED(AVAHI_NATPMD_GROUP,"$AVAHI_NATPMD_GROUP", [iGroup for the daemon to run as by default])
+AC_SUBST(NATPMD_GROUP)
+AC_DEFINE_UNQUOTED(NATPMD_GROUP,"$NATPMD_GROUP", [Group for the daemon to run as by default])
 
 AC_CONFIG_FILES([Makefile
                  tests/Makefile

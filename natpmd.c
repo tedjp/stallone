@@ -267,17 +267,17 @@ static int drop_privs(void) {
 
     /* Get user/group ID */
     
-    if (!(pw = getpwnam(AVAHI_NATPMD_USER))) {
-        daemon_log(LOG_ERR, "Failed to find user '"AVAHI_NATPMD_USER"'.");
+    if (!(pw = getpwnam(NATPMD_USER))) {
+        daemon_log(LOG_ERR, "Failed to find user '"NATPMD_USER"'.");
         return -1;
     }
     
-    if (!(gr = getgrnam(AVAHI_NATPMD_GROUP))) {
-        daemon_log(LOG_ERR, "Failed to find group '"AVAHI_NATPMD_GROUP"'.");
+    if (!(gr = getgrnam(NATPMD_GROUP))) {
+        daemon_log(LOG_ERR, "Failed to find group '"NATPMD_GROUP"'.");
         return -1;
     }
     
-    daemon_log(LOG_INFO, "Found user '"AVAHI_NATPMD_USER"' (UID %lu) and group '"AVAHI_NATPMD_GROUP"' (GID %lu).", (unsigned long) pw->pw_uid, (unsigned long) gr->gr_gid);
+    daemon_log(LOG_INFO, "Found user '"NATPMD_USER"' (UID %lu) and group '"NATPMD_GROUP"' (GID %lu).", (unsigned long) pw->pw_uid, (unsigned long) gr->gr_gid);
 
     /* Create directory */
     u = umask(0000);
@@ -327,7 +327,7 @@ static int drop_privs(void) {
     
 #endif
 
-    if (initgroups(AVAHI_NATPMD_USER, gr->gr_gid) != 0) {
+    if (initgroups(NATPMD_USER, gr->gr_gid) != 0) {
         daemon_log(LOG_ERR, "Failed to change group list: %s", strerror(errno));
         return -1;
     }
