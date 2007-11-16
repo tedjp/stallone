@@ -8,11 +8,14 @@ yourself simply follow the steps below.
 Dependencies
 ------------
 Ensure that your system has the following dependencies installed
-prior to building Stallone.
+prior to building Stallone. Those marked with an asterisk are only
+required if you want to make code changes or for checkouts from Git.
 
-autoconf
-automake
+autoconf*
+automake*
 asciidoc
+libdaemon
+libcap
 
 Building Stallone
 -----------------
