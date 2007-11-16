@@ -6,4 +6,3 @@ check process stallone with pidfile /var/run/stallone.pid
    start program = "/usr/local/sbin/stallone --daemonize"
    stop program = "/usr/local/sbin/stallone --kill"
    if 5 restarts within 5 cycles then timeout
-

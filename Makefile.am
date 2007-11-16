@@ -101,6 +101,7 @@ EXTRA_DIST = \
              INSTALL \
 	     THANKS \
              natpmd.conf.in \
+	     extras/monit/stallone \
              # end
 
 natpmd.conf: natpmd.conf.in

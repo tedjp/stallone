@@ -14,6 +14,7 @@ install-sh
 missing
 natpmd.conf
 stallone
+!extras/monit/stallone
 # For `make distcheck`: the tarball and the unpacked dir
 stallone-*.*.*
 # Manpages
