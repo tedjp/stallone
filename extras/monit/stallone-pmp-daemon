@@ -1,0 +1,9 @@
+# a simple monit file that will keep the stallone pmp daemon alive and check on its status
+# depending on your monit system config you may be able to drop this in /etc/monit.d and restart monit
+
+check process stallone with pidfile /var/run/stallone.pid
+  group stallone
+   start program = "/usr/local/sbin/stallone --daemonize"
+   stop program = "/usr/local/sbin/stallone --kill"
+   if 5 restarts within 5 cycles then timeout
+
