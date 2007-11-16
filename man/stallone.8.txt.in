@@ -77,12 +77,6 @@ default values.
   mapping-script=@NATPMD_DEFAULT_MAPPING_SCRIPT@
 
 
-BUGS
-----
-
-Please report bugs to http://lazypants.org/bugzilla/[].
-
-
 SECURITY
 --------
 Stallone's architecture is two processes. The main process which
@@ -99,6 +93,7 @@ process over a pipe using a simple & strict protocol.
 SEE ALSO
 --------
 
-Home page: http://tedp.id.au/stallone/[]
+* Home page: http://tedp.id.au/stallone/[]
+* Bug tracker: http://lazypants.org/bugzilla/[]
 
 // vim: tw=72 ts=8 sw=8 et
