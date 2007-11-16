@@ -77,6 +77,17 @@ default values.
   mapping-script=@NATPMD_DEFAULT_MAPPING_SCRIPT@
 
 
+FILES
+-----
+@NATPMD_DEFAULT_CONFIG_FILE@:: Configuration file
+
+@NATPMD_DEFAULT_MAPPING_SCRIPT@:: Default port mapping script
+
+// pidfile name is determined by libdaemon and not based on stallone's
+// configuration.
+/var/run/stallone.pid:: Daemon pidfile
+
+
 SECURITY
 --------
 Stallone's architecture is two processes. The main process which
