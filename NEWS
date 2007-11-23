@@ -1,5 +1,42 @@
+Stallone 0.2.0
+
+  * Public port range & mapping script now configurable through
+    $(sysconfdir)/stallone/natpmd.conf. The --script option has been
+    removed in favour of the config file setting.
+
+  * Now adds ACCEPT rules to the iptables FORWARD chain for each
+    forwarded port.
+
+  * Worker process now drops all superuser capabilities except
+    cap_net_admin.
+
+  * Changed the iptables chain name to STALLONE-NATPMD instead of
+    AVAHI-NATPM.
+
+  * Fixed a crash bug if the machine has an interface with no address.
+
+  * Improved documentation, in particular there are brief installation
+    instructions in the INSTALL file.
+
+  * Now works with libdaemon >= 0.5 rather than >= 0.11.
+
+  * Now works with asciidoc >= 7 rather than >= 8.
+
+  * Fixed a bug where testclient would accept negative port numbers.
+
+  * Fixed endianness bugs in testclient that would cause the wrong port
+    to be requested.
+
+  * Added a sample monit config file.
+
+ -- Ted Percival <ted@midg3t.net>  Sat, 24 Nov 2007 00:59:16 +1000
+
+
 Stallone 0.1.0
 
   * Initial release.
 
  -- Ted Percival <ted@midg3t.net>  Sun, 30 Sep 2007 01:41:25 +1000
+
+
+# vim: tw=72 ft=changelog et
