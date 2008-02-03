@@ -2,7 +2,7 @@
 #define foonatpmdconfighfoo
 /***
   This file is part of Stallone.
-  Copright 2007  Ted Percival <ted@midg3t.net>
+  Copyright 2007  Ted Percival <ted@midg3t.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
