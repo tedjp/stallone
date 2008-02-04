@@ -161,8 +161,14 @@ static void op_get_public(int argc AVAHI_GCC_UNUSED, char *argv[] AVAHI_GCC_UNUS
             avahi_natpmp_pkt_dump(&pkt));
 }
 
-static void op_map(int argc AVAHI_GCC_UNUSED, char *argv[]) {
+static void op_map(int argc, char *argv[]) {
     AvahiNPPacket pkt;
+
+    if (argc < ARG_EXPECT_ARGC_MAP) {
+        fprintf(stderr, "Not enough args for map. "
+                "Expected <priv-port> <pub-port> <proto> <time>\n");
+        exit(1);
+    }
 
     prepare_outgoing_packet(&pkt);
     pkt.datalen = 12;
@@ -308,6 +314,9 @@ int main(int argc, char *argv[]) {
 
     if (!action)
         help_and_exit(argv0, 1);
+
+    --argc;
+    argv++;
 
     action(argc, argv);
 
