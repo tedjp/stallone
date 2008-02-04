@@ -35,38 +35,35 @@
 
 #include <avahi-common/malloc.h>
 #include <avahi-common/fdutil.h>
+#include <avahi-common/gccmacro.h>
 
 #include "../common.h"
 #include "../packetdump.h"
+#include "gateway.h"
 
 #define DEFAULT_MAP_LIFETIME 30
 #define RESPONSE_WAIT_TIME_MSEC 5000
 
 enum {
-    ARG_0,
     ARG_OP,
-    ARG_GATEWAY,
     ARG_PRIVPORT,
     ARG_PUBPORT,
     ARG_PROTO,
     ARG_TIME,
-    ARG_EXPECT_ARGC_MAP /*< argc expected for [un]map ops */
+    ARG_EXPECT_ARGC_MAP /**< argc expected for [un]map ops */
 };
 
-static void prepare_outgoing_packet(AvahiNPPacket *pkt, const char *gateway) {
+static struct in_addr gateway_addr;
+
+static void prepare_outgoing_packet(AvahiNPPacket *pkt) {
 
     assert(pkt);
-    assert(gateway);
 
     memset(pkt, '\0', sizeof(*pkt));
 
     pkt->addr.sin_family = AF_INET;
     pkt->addr.sin_port = htons(NATPMP_PORT);
-    if (inet_pton(AF_INET, gateway, &pkt->addr.sin_addr) <= 0) {
-        fprintf(stderr, "Problem parsing gateway address\n");
-        exit(1);
-    }
-
+    pkt->addr.sin_addr = gateway_addr;
     pkt->data.common.version = 0;
 
     pkt->sock = socket(PF_INET, SOCK_DGRAM, 0);
@@ -148,16 +145,10 @@ static void recv_packet(AvahiNPPacket *pkt) {
 
 typedef void (*ClientAction)(int argc, char *argv[]);
 
-static void op_get_public(int argc, char *argv[]) {
+static void op_get_public(int argc AVAHI_GCC_UNUSED, char *argv[] AVAHI_GCC_UNUSED) {
     AvahiNPPacket pkt;
 
-    if (argc < 3) {
-        fprintf(stderr, "%s %s: Please provide the gateway address to send to.\n",
-                argv[0], argv[1]);
-        exit(1);
-    }
-
-    prepare_outgoing_packet(&pkt, argv[2]);
+    prepare_outgoing_packet(&pkt);
 
     pkt.datalen = 2;
     pkt.data.common.opcode = NATPMP_OPCODE_PUBLIC_ADDR;
@@ -170,17 +161,10 @@ static void op_get_public(int argc, char *argv[]) {
             avahi_natpmp_pkt_dump(&pkt));
 }
 
-static void op_map(int argc, char *argv[]) {
+static void op_map(int argc AVAHI_GCC_UNUSED, char *argv[]) {
     AvahiNPPacket pkt;
 
-    if (argc != ARG_EXPECT_ARGC_MAP) {
-        fprintf(stderr,
-                "%s %s: Please provide gateway privport pubport proto time\n",
-                argv[ARG_0], argv[ARG_OP]);
-        exit(1);
-    }
-
-    prepare_outgoing_packet(&pkt, argv[2]);
+    prepare_outgoing_packet(&pkt);
     pkt.datalen = 12;
 
     /* proto */
@@ -262,11 +246,11 @@ void help_and_exit(const char *argv0, int exitcode) {
     FILE *stream = exitcode ? stderr : stdout;
 
     fprintf(stream,
-            "Usage: %s <command> <gateway-addr> [<args>...]\n"
+            "Usage: %s [-g <gateway-addr>] <command> [<args>...]\n"
             "  Commands:\n"
-            "    get-public <gateway-addr>\n"
-            "    map        <gateway-addr> <priv-port> <pub-port> <proto> <time>\n"
-            "    unmap      <gateway-addr> <priv-port> <pub-port> <proto> 0\n"
+            "    get-public\n"
+            "    map        <priv-port> <pub-port> <proto> <time>\n"
+            "    unmap      <priv-port> <pub-port> <proto> 0\n"
             ,argv0);
 
     exit(exitcode);
@@ -284,11 +268,35 @@ static struct {
 int main(int argc, char *argv[]) {
     ClientAction action = NULL;
     size_t i;
+    const char *argv0 = argv[0];
 
     if (    argc == 1
         || (argc == 2 && strcmp(argv[1],"-h") == 0)
         || (argc == 2 && strcmp(argv[1],"--help") == 0)) {
         help_and_exit(argv[0], argc == 2 ? 0 : 1);
+    }
+
+    if (argc >= 3 && strcmp(argv[1], "-g") == 0) {
+        int ret;
+
+        ret = inet_pton(AF_INET, argv[2], &gateway_addr);
+        if (ret < 0) {
+            fprintf(stderr, "inet_pton didn't understand AF_INET\n");
+            exit(1);
+        }
+        if (ret == 0) {
+            fprintf(stderr, "Could not parse \"%s\" as an IPv4 address\n",
+                    argv[2]);
+            exit(1);
+        }
+
+        argc -= 2;
+        argv = &argv[2];
+    } else {
+        if (avahi_natpm_get_gateway(&gateway_addr)) {
+            fprintf(stderr, "Failed to get gateway address\n");
+            exit(2);
+        }
     }
 
     for (i = 0; i < sizeof(clientcmds) / sizeof(clientcmds[0]); ++i) {
@@ -299,7 +307,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!action)
-        help_and_exit(argv[0], 1);
+        help_and_exit(argv0, 1);
 
     action(argc, argv);
 

@@ -26,6 +26,7 @@ testclient_SOURCES = \
                        ../common.c ../common.h \
                        ../packetdump.c ../packetdump.h \
                        testclient.c \
+                       gateway.c gateway.h \
                        # end of list
 
 testclient_LDADD = \
