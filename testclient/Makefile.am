@@ -30,6 +30,7 @@ testclient_SOURCES = \
                        # end of list
 
 testclient_LDADD = \
+                     $(LTLIBOBJS) \
                      $(top_builddir)/avahi-common/libavahi-common.a
 
 # vim: ts=4 sw=4 tw=80

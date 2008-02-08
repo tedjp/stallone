@@ -60,6 +60,7 @@ stallone_SOURCES = \
 
 stallone_LDADD = \
                      $(LIBDAEMON_LIBS) \
+                     $(LTLIBOBJS) \
                      $(top_builddir)/avahi-common/libavahi-common.a
 
 stallone_CPPFLAGS = \

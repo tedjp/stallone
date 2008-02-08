@@ -23,17 +23,18 @@ AC_PREREQ(2.61)
 AC_INIT([stallone], [0.2.0], [ted @ midg3t.net])
 AC_CONFIG_SRCDIR([common.c])
 AC_CONFIG_HEADER([config.h])
-AM_INIT_AUTOMAKE([foreign check-news -Wall])
+AC_CONFIG_LIBOBJ_DIR([lib])
+AM_INIT_AUTOMAKE([foreign check-news -Wall subdir-objects])
+
+AC_GNU_SOURCE
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_LIBTOOL
 
 AC_PATH_PROG([A2X], [a2x])
 AM_CONDITIONAL([HAVE_A2X], [test -n "$A2X"])
 
-AC_GNU_SOURCE
-# For libavahi-common
-AC_PROG_RANLIB
 # Used for tests/coverage
 AM_PROG_CC_C_O
 
@@ -124,6 +125,8 @@ AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_STAT
+dnl To be added in future
+dnl AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
 AC_CHECK_FUNCS([\
                 alarm \
                 atexit \

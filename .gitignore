@@ -1,16 +1,21 @@
 .deps
+.dirstamp
 aclocal.m4
 Makefile
 Makefile.in
 autom4te.cache
 compile
+config.guess
 config.h
 config.h.in
 config.log
 config.status
+config.sub
 configure
 depcomp
 install-sh
+libtool
+ltmain.sh
 missing
 natpmd.conf
 stallone
@@ -27,6 +32,7 @@ test-caps
 test-natpmd-config
 tags
 *.o
+*.lo
 *~
 
 # gcov files
