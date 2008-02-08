@@ -176,6 +176,7 @@ AC_CONFIG_FILES([Makefile
                  testclient/Makefile
                  avahi-common/Makefile
                  man/Makefile
+                 lib/Makefile
                  ])
 AC_OUTPUT
 

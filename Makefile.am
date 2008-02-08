@@ -19,6 +19,7 @@
 include $(top_srcdir)/Makefile.am.common
 
 SUBDIRS = \
+      lib \
       avahi-common \
       man \
       tests \
