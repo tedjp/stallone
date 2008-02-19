@@ -13,6 +13,7 @@ required if you want to make code changes or for checkouts from Git.
 
 autoconf*
 automake*
+libtool*
 asciidoc
 libdaemon
 libcap
