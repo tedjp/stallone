@@ -1414,6 +1414,45 @@ void update_timer(void) {
 }
 
 /**
+ * Send a gratuitous address notification at startup (section 3.2.1).
+ * Returns 0 on success, nonzero on error.
+ */
+static int gratuitous_notification(void) {
+    AvahiNatpmPrivateInterface *privif;
+
+    for (privif = private_interfaces; privif; privif = privif->ifa_next) {
+        /* Has to be allocated because all packets that are sent with
+         * resend are freed at the end of their lives. */
+        AvahiNPPacket *pkt = calloc(1, sizeof(*pkt));
+
+        if (!pkt) {
+            daemon_log(LOG_ERR, "Out of memory allocating notification packet");
+            return -1;
+        }
+
+        pkt->sock = privif->sock;
+        pkt->addr.sin_family = AF_INET;
+
+        if (inet_pton(AF_INET, NATPMP_MCAST_ADDR, &pkt->addr.sin_addr) < 1) {
+            daemon_log(LOG_ERR, "inet_ntop() didn't like %s: %s",
+                    NATPMP_MCAST_ADDR, strerror(errno));
+            return -1;
+        }
+
+        pkt->addr.sin_port = htons(NATPMP_PORT);
+
+        prepare_public_ip_notification(pkt);
+
+        daemon_log(LOG_INFO, "%s: Sending gratuitous notification on %s",
+                __FUNCTION__, privif->iface.name);
+
+        send_packet_with_resend(pkt);
+    }
+
+    return 0;
+}
+
+/**
  * Main daemon processing.
  *
  * Returns -1 on failure or 0 on success.
@@ -1530,40 +1569,8 @@ static int go_daemon(void) {
             goto finish;
         }
 
-        /* Gratuitous address notification at startup (section 3.2.1) */
-        /* Put this in a separate function before I get angry */
-        {
-            AvahiNatpmPrivateInterface *privif;
-
-            for (privif = private_interfaces; privif; privif = privif->ifa_next) {
-                /* Has to be allocated because all packets that are sent with
-                 * resend are freed at the end of their lives. */
-                AvahiNPPacket *pkt = calloc(1, sizeof(*pkt));
-                
-                if (!pkt) {
-                    daemon_log(LOG_ERR, "Out of memory allocating notification packet");
-                    goto finish;
-                }
-
-                pkt->sock = privif->sock;
-                pkt->addr.sin_family = AF_INET;
-
-                if (inet_pton(AF_INET, NATPMP_MCAST_ADDR, &pkt->addr.sin_addr) < 1) {
-                    daemon_log(LOG_ERR, "inet_ntop() didn't like %s: %s",
-                            NATPMP_MCAST_ADDR, strerror(errno));
-                    goto finish;
-                }
-
-                pkt->addr.sin_port = htons(NATPMP_PORT);
-
-                prepare_public_ip_notification(pkt);
-
-                daemon_log(LOG_INFO, "%s: Sending gratuitous notification on %s",
-                        __FUNCTION__, privif->iface.name);
-
-                send_packet_with_resend(pkt);
-            }
-        }
+        if (gratuitous_notification())
+            goto finish;
 
         mainloop(pmd_listen_sock);
 
