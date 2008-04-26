@@ -119,10 +119,11 @@ AC_TYPE_UINT8_T
 AC_FUNC_CHOWN
 AC_FUNC_FORK
 AC_PROG_GCC_TRADITIONAL
-dnl More trouble than it is worth
+dnl More trouble than they're worth. Just don't call malloc(0) and
+dnl everything will be fine.
 dnl AC_FUNC_MALLOC
-AC_FUNC_MEMCMP
-AC_FUNC_REALLOC
+dnl AC_FUNC_REALLOC
+dnl AC_FUNC_MEMCMP
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_STAT
 dnl To be added in future
