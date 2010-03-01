@@ -37,7 +37,10 @@
  */
 const char *ip4_addr_str(struct in_addr addr) {
     static char str[16];
-    return inet_ntop(AF_INET, &addr.s_addr, str, sizeof(str));
+    if (inet_ntop(AF_INET, &addr.s_addr, str, sizeof(str)))
+        return str;
+    else
+        return "?";
 }
 
 #if 0 /* unused */
