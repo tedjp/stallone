@@ -99,7 +99,7 @@ const char *avahi_natpmp_pkt_dump(const AvahiNPPacket *pkt) {
     avahi_natpmp_pkt_dump_free();
 
     /* Dump all the common parts first */
-    dump_str = avahi_strdup_printf("{sock[%d] remote_addr[%s:%hu] ever_sent[%d] datalen[%d] version[%hhu] opcode[%hhu+%hhu] %s[%hu(%s)]",
+    dump_str = avahi_strdup_printf("{sock[%d] remote_addr[%s:%hu] ever_sent[%d] datalen[%zd] version[%hhu] opcode[%hhu+%hhu] %s[%hu(%s)]",
             pkt->sock,
             ip4_addr_str(pkt->addr.sin_addr), ntohs(pkt->addr.sin_port), pkt->ever_sent,
             pkt->datalen, pkt->data.common.version,

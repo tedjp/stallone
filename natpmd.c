@@ -627,7 +627,7 @@ static void process_packet(const AvahiNPPacket *pkt) {
     AvahiNPPacket response;
 
     if (pkt->datalen < NATPMP_MINPKTSIZE)
-        daemon_log(LOG_INFO, "Received a packet that was too small (%d bytes) from %s", pkt->datalen, ip4_addr_str(inaddr));
+        daemon_log(LOG_INFO, "Received a packet that was too small (%zd bytes) from %s", pkt->datalen, ip4_addr_str(inaddr));
 
     /* TODO: Update this to compare against private_interfaces once that is
      * implemented. */
@@ -1334,7 +1334,7 @@ static void mainloop(int sock) {
             if (pkt.datalen < NATPMP_MINPKTSIZE) {
                 daemon_log(
                         LOG_INFO,
-                        "Received a packet that was only %d bytes long (expected at least %d)",
+                        "Received a packet that was only %zd bytes long (expected at least %d)",
                         pkt.datalen,
                         NATPMP_MINPKTSIZE);
                 continue;

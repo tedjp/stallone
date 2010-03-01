@@ -89,7 +89,7 @@ static void send_packet(const AvahiNPPacket *pkt) {
     }
 
     if (size != pkt->datalen) {
-        fprintf(stderr, "size[%d] != pkt->datalen[%d], "
+        fprintf(stderr, "size[%zd] != pkt->datalen[%zd], "
                 "looks like somebody set up us the bomb. "
                 "Continuing anyway.\n",
                 size, pkt->datalen);
