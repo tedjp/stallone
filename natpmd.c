@@ -179,12 +179,12 @@ static int parse_command_line(int argc, char *argv[]) {
     };
 
     static const struct option long_options[] = {
-        { "help",          no_argument,       NULL, 'h' },
-        { "config",        required_argument, NULL, 'f' },
-        { "daemonize",     no_argument,       NULL, 'D' },
-        { "syslog",        no_argument,       NULL, 's' },
-        { "kill",          no_argument,       NULL, 'k' },
         { "check",         no_argument,       NULL, 'c' },
+        { "daemonize",     no_argument,       NULL, 'D' },
+        { "config",        required_argument, NULL, 'f' },
+        { "help",          no_argument,       NULL, 'h' },
+        { "kill",          no_argument,       NULL, 'k' },
+        { "syslog",        no_argument,       NULL, 's' },
         { "version",       no_argument,       NULL, 'V' },
 #ifdef HAVE_CHROOT
         { "no-chroot",     no_argument,       NULL, OPTION_NO_CHROOT },
@@ -196,7 +196,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { NULL, 0, NULL, 0 }
     };
 
-    while ((c = getopt_long(argc, argv, "hDskct:V", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "cDf:hksV", long_options, NULL)) >= 0) {
         switch (c) {
             case 'h':
                 command = DAEMON_HELP;
