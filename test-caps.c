@@ -33,7 +33,7 @@ int main(void) {
     fprintf(stderr, "No capability support\n");
 
     return 77;
-#endif
+#else /* LIBCAP support */
 
     int err;
     cap_t caps;
@@ -70,6 +70,7 @@ int main(void) {
     cap_free(caps);
 
     return 0;
+#endif /* LIBCAP support */
 }
 
 /* vim: ts=4 sw=4 et tw=80
