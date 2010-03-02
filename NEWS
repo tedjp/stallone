@@ -1,3 +1,21 @@
+Stallone 0.3.0
+
+  * Fixed parsing of the -f <conffile> option.
+
+  * Add --script/-t option to specify mapping script,
+    overriding what's set in the config file.
+
+  * Automatically determine the gateway in the testclient.
+
+  * Ship replacements for broken libc functions.
+
+  * Disabled unnecessary autoconf checks (malloc, realloc, memcmp).
+
+  * Fixed typos in testclient & copyright notices.
+
+ -- Ted Percival <ted@midg3t.net>  Tue, 02 Mar 2010 05:13:12 +0000
+
+
 Stallone 0.2.0
 
   * Public port range & mapping script now configurable through
