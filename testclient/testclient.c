@@ -318,6 +318,8 @@ int main(int argc, char *argv[]) {
     --argc;
     argv++;
 
+    fprintf(stdout, "Sending request to %s...\n", ip4_addr_str(gateway_addr));
+
     action(argc, argv);
 
     fprintf(stdout, "(And everything went fine!)\n");
