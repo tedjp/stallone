@@ -305,6 +305,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (argc < 2)
+        help_and_exit(argv[0], 1);
+
     for (i = 0; i < sizeof(clientcmds) / sizeof(clientcmds[0]); ++i) {
         if (strcmp(clientcmds[i].cmdname, argv[1]) == 0) {
             action = clientcmds[i].action;
