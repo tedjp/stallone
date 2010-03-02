@@ -119,6 +119,8 @@ time_t epoch;
 static AvahiNatpmInterface *public_interface;
 static AvahiNatpmPrivateInterface *private_interfaces;
 static char *config_filename;
+/* Custom action script specified on the cmdline */
+static const char *cmdline_script;
 static AvahiNatpmdConfig config;
 
 int ipc_sock = -1;
@@ -185,6 +187,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { "help",          no_argument,       NULL, 'h' },
         { "kill",          no_argument,       NULL, 'k' },
         { "syslog",        no_argument,       NULL, 's' },
+        { "script",        required_argument, NULL, 't' },
         { "version",       no_argument,       NULL, 'V' },
 #ifdef HAVE_CHROOT
         { "no-chroot",     no_argument,       NULL, OPTION_NO_CHROOT },
@@ -196,7 +199,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { NULL, 0, NULL, 0 }
     };
 
-    while ((c = getopt_long(argc, argv, "cDf:hksV", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "cDf:hkst:V", long_options, NULL)) >= 0) {
         switch (c) {
             case 'h':
                 command = DAEMON_HELP;
@@ -221,6 +224,10 @@ static int parse_command_line(int argc, char *argv[]) {
 
             case 'c':
                 command = DAEMON_CHECK;
+                break;
+
+            case 't':
+                cmdline_script = optarg;
                 break;
 
             case 'V':
@@ -1643,6 +1650,10 @@ int main(int argc, char *argv[]) {
 
     if (natpmd_config_load(&config, config_filename) != 0)
         goto finish;
+
+    /* Apply overridden script */
+    if (cmdline_script)
+        natpmd_config_set_mapping_script(&config, cmdline_script);
 
     if (use_syslog)
        daemon_log_use = DAEMON_LOG_SYSLOG;

@@ -47,6 +47,10 @@ OPTIONS
 -s, --syslog::
         Send log messages to syslog instead of (`stderr`) (implied by `-D`).
 
+-t, --script `FILE`::
+        The mapping script (run when adding & removing mappings).
+        Overrides the mapping-script setting from the config file.
+
 -V, --version::
         Display stallone's version number and exit.
 
