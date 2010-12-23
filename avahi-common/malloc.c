@@ -48,7 +48,7 @@ static void oom(void) {
     static const char msg[] = "Out of memory, aborting ...\n";
     const char *n = msg;
 
-    while (strlen(n) > 0) {
+    while (*n != '\0') {
         ssize_t r;
         
         if ((r = write(2, n, strlen(n))) < 0)

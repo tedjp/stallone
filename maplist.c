@@ -358,7 +358,7 @@ time_t avahi_natpm_maplist_update_lifetime(AvahiNatpmMap *map, AvahiNPProto prot
  * It is the caller's responsibility to increment the map_count.
  */
 static time_t map_insert(AvahiNatpmMap *map) {
-    AvahiNatpmMap *it, *prev = NULL;
+    AvahiNatpmMap *it = NULL;
 
     assert(map);
     
@@ -395,8 +395,6 @@ static time_t map_insert(AvahiNatpmMap *map) {
 
             break;
         }
-
-        prev = it;
     }
 
     return avahi_natpm_map_next_expiry(list_head);
@@ -461,8 +459,7 @@ int avahi_natpm_maplist_find(
  * @param result result to free. May be NULL.
  */
 void avahi_natpm_maplist_free_result(AvahiNatpmMap **result) {
-    if (result)
-        free(result);
+    free(result);
 }
 
 /* vim: ts=4 sw=4 et tw=80
