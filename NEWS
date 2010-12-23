@@ -1,3 +1,11 @@
+Stallone 0.4.0
+
+  * Add the ability to specify the name of the public interface, either
+    in the configuration file or on the command-line (-i).
+
+ -- Ted Percival <ted@midg3t.net>  Thu, 23 Dec 2010 22:33:58 +0000
+
+
 Stallone 0.3.0
 
   * Fixed parsing of the -f <conffile> option.
