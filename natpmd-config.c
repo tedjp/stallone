@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <libdaemon/dlog.h>
 #include <avahi-common/malloc.h>
@@ -102,6 +103,8 @@ void natpmd_config_cleanup(AvahiNatpmdConfig *cfg) {
 
     avahi_free(cfg->mapping_script);
     cfg->mapping_script = NULL;
+    avahi_free(cfg->public_interface_name);
+    cfg->public_interface_name = NULL;
 }
 
 /**
@@ -156,6 +159,14 @@ static int apply_config(AvahiNatpmdConfig *cfg, const char *filename) {
                     parse_port(&cfg->max_port, pair->value);
                 } else if (strcmp(pair->key, "mapping-script") == 0) {
                     natpmd_config_set_mapping_script(cfg, pair->value);
+                } else if (strcmp(pair->key, "public-interface") == 0) {
+                    avahi_free(cfg->public_interface_name);
+                    cfg->public_interface_name = avahi_strdup(pair->value);
+                    if (!cfg->public_interface_name) {
+                        daemon_log(LOG_ERR, "%s: Failed to set public interface: %s",
+                                __func__, strerror(errno));
+                        goto cleanup;
+                    }
                 } else {
                     daemon_log(LOG_WARNING,
                             "%s: Ignoring unknown configuration option \"%s\"",

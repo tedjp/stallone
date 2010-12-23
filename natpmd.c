@@ -121,6 +121,8 @@ static AvahiNatpmPrivateInterface *private_interfaces;
 static char *config_filename;
 /* Custom action script specified on the cmdline */
 static const char *cmdline_script;
+/* Custom public interface specified on the cmdline */
+static const char *cmdline_pubiface;
 static AvahiNatpmdConfig config;
 
 int ipc_sock = -1;
@@ -185,6 +187,7 @@ static int parse_command_line(int argc, char *argv[]) {
         { "daemonize",     no_argument,       NULL, 'D' },
         { "config",        required_argument, NULL, 'f' },
         { "help",          no_argument,       NULL, 'h' },
+        { "public-iface",  required_argument, NULL, 'i' },
         { "kill",          no_argument,       NULL, 'k' },
         { "syslog",        no_argument,       NULL, 's' },
         { "script",        required_argument, NULL, 't' },
@@ -199,10 +202,14 @@ static int parse_command_line(int argc, char *argv[]) {
         { NULL, 0, NULL, 0 }
     };
 
-    while ((c = getopt_long(argc, argv, "cDf:hkst:V", long_options, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "cDf:hi:kst:V", long_options, NULL)) >= 0) {
         switch (c) {
             case 'h':
                 command = DAEMON_HELP;
+                break;
+
+            case 'i':
+                cmdline_pubiface = optarg;
                 break;
 
             case 'f':
@@ -389,6 +396,9 @@ static void help(FILE *file, const char *a0) {
             "    -f --file=FILE      Load the specified configuration file instead of\n"
             "                        " NATPMD_DEFAULT_CONFIG_FILE "\n"
             "    -h --help           Show this help\n"
+            "    -i --public-iface=NAME\n"
+            "                        Use the given interface as the public interface\n"
+            "                        instead of using automatic detection.\n"
             "    -k --kill           Kill a running daemon\n"
             "    -s --syslog         Write log messages to syslog(3) instead of STDERR\n"
             "    -t --script=SCRIPT  Mapping script to run (defaults to\n"
@@ -1532,11 +1542,11 @@ static int go_daemon(void) {
 
         (void) avahi_natpm_maplist_init();
         
-        /* read config */
-        /* ... */
-        /* XXX: I would expect that once I have cool interface state shiznit
-         * happening, that this will be unnecessary */
-        avahi_natpm_set_public_addr(avahi_natpm_get_public_interface_auto());
+        /* We must call avahi_natpm_get_public_interface() regardless of
+         * whether the public_interface_name is set, because if it isn't we
+         * need to ensure that one is found automatically. */
+        avahi_natpm_set_public_addr(avahi_natpm_get_public_interface(
+                    config.public_interface_name));
         if (!public_interface) {
             daemon_log(LOG_ERR, "Could not find a suitable public interface");
             goto finish;
@@ -1651,9 +1661,13 @@ int main(int argc, char *argv[]) {
     if (natpmd_config_load(&config, config_filename) != 0)
         goto finish;
 
-    /* Apply overridden script */
+    /* Apply command-line overrides */
     if (cmdline_script)
         natpmd_config_set_mapping_script(&config, cmdline_script);
+    if (cmdline_pubiface) {
+        avahi_free(config.public_interface_name);
+        config.public_interface_name = avahi_strdup(cmdline_pubiface);
+    }
 
     if (use_syslog)
        daemon_log_use = DAEMON_LOG_SYSLOG;

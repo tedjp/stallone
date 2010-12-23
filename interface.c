@@ -37,12 +37,40 @@
 static int get_multicast_socket(const struct sockaddr_in *addr);
 
 /**
+ * Return nonzero if the given interface either
+ * a) matches the given interface name; or
+ * b) is a public interface.
+ * Note that if an interface name is provided, *only* that interface will match,
+ * other interfaces with public addresses will be ignored.
+ */
+static int is_public_iface(const struct ifaddrs *ifaddr, const char *pubifname) {
+    const struct sockaddr_in *sin = (struct sockaddr_in*)ifaddr->ifa_addr;
+
+    if (pubifname)
+        return (strcmp(ifaddr->ifa_name, pubifname) == 0) ? 1 : 0;
+    return (avahi_natpm_address_visibility(sin->sin_addr.s_addr)
+            == AVAHI_NATPM_ADDRESS_VISIBILITY_PUBLIC);
+}
+
+/**
+ * Iterate through interfaces to find a public interface.
+ * The intended interface name may be passed in, in which case that interface
+ * will be returned (if found).
+ *
+ * @param ifacename Name of the interface to be used as the public interface.
+ *                  May be NULL, in which case the first interface with a
+ *                  public IP address will be used.
+ *
  * Returns NULL if there is no appropriate interface.
  * Free the result with avahi_natpm_free_interface().
  */
-AvahiNatpmInterface *avahi_natpm_get_public_interface_auto(void) {
+AvahiNatpmInterface *avahi_natpm_get_public_interface(const char *ifacename) {
     AvahiNatpmInterface *iface = NULL;
     struct ifaddrs *ifaddrs_top, *ifaddr;
+
+    /* Consider an empty interface as if it's not set at all. */
+    if (ifacename && ifacename[0] == '\0')
+        ifacename = NULL;
 
     if (-1 == getifaddrs(&ifaddrs_top))
         return NULL;
@@ -54,7 +82,8 @@ AvahiNatpmInterface *avahi_natpm_get_public_interface_auto(void) {
         if (ifaddr->ifa_addr->sa_family == AF_INET) {
             const struct sockaddr_in *sin = (struct sockaddr_in*)ifaddr->ifa_addr;
 
-            if (avahi_natpm_address_visibility(sin->sin_addr.s_addr) == AVAHI_NATPM_ADDRESS_VISIBILITY_PUBLIC) {
+            if (is_public_iface(ifaddr, ifacename))
+            {
                 iface = avahi_new0(AvahiNatpmInterface, 1);
                 if (!iface)
                     goto end;
@@ -67,6 +96,9 @@ AvahiNatpmInterface *avahi_natpm_get_public_interface_auto(void) {
             }
         }
     }
+
+    if (ifacename && !iface)
+        daemon_log(LOG_ERR, "Interface \"%s\" not found.", ifacename);
 
 end:
     freeifaddrs(ifaddrs_top);

@@ -6,3 +6,4 @@
   min-port=@NATPMD_DEFAULT_MIN_PORT@
   max-port=@NATPMD_DEFAULT_MAX_PORT@
   mapping-script=@NATPMD_DEFAULT_MAPPING_SCRIPT@
+  #public-interface=

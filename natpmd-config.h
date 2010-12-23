@@ -34,6 +34,7 @@ typedef struct AvahiNatpmdConfig AvahiNatpmdConfig;
 struct AvahiNatpmdConfig {
     uint16_t min_port, max_port;
     char *mapping_script;
+    char *public_interface_name;
 };
 
 int natpmd_config_load(AvahiNatpmdConfig *cfg, const char *filename);

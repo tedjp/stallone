@@ -52,8 +52,7 @@ struct AvahiNatpmPrivateInterface {
     AvahiNatpmInterface iface;
 };
 
-AvahiNatpmInterface *avahi_natpm_get_public_interface_auto(void);
-AvahiNatpmInterface *avahi_natpm_get_public_interface(const char *interface);
+AvahiNatpmInterface *avahi_natpm_get_public_interface(const char *ifacename);
 
 int avahi_natpm_get_private_interfaces(AvahiNatpmPrivateInterface **head);
 

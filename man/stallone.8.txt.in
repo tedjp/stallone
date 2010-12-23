@@ -38,6 +38,9 @@ OPTIONS
 -h, --help::
         Provide a list of options.
 
+-i, --public-iface `NAME`::
+        Use `NAME` as the public interface.
+
 -k, --kill::
         Kill an existing stallone process.
 
@@ -79,6 +82,12 @@ default values.
   min-port=@NATPMD_DEFAULT_MIN_PORT@
   max-port=@NATPMD_DEFAULT_MAX_PORT@
   mapping-script=@NATPMD_DEFAULT_MAPPING_SCRIPT@
+  #public-interface=
+
+The public interface will be chosen automatically if it is not
+specified. This is usually sufficient, but if you have multiple public
+IP addresses or you use transparent NAT, you may need to specify the
+public interface name explicitly, for example "eth0".
 
 
 FILES
