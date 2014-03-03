@@ -109,8 +109,7 @@ ipt_cleanup () {
         # Delete references
         $IPTABLES -t nat -D PREROUTING -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
         $IPTABLES -t nat -D PREROUTING -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
-        $IPTABLES -t filter -D FORWARD -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
-        $IPTABLES -t filter -D FORWARD -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
+        $IPTABLES -t filter -D FORWARD -i "$iface" -m conntrack --ctstate DNAT -j $TABLE
 
         # Delete table
         $IPTABLES -t nat -X $TABLE
@@ -130,11 +129,10 @@ ipt_prepare () {
 
     # Set up
     $IPTABLES -t nat -N $TABLE
-    $IPTABLES -t nat -A PREROUTING -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
-    $IPTABLES -t nat -A PREROUTING -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
+    $IPTABLES -t nat -I PREROUTING -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
+    $IPTABLES -t nat -I PREROUTING -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
     $IPTABLES -t filter -N $TABLE
-    $IPTABLES -t filter -A FORWARD -i "$iface" -p tcp --dport "$minport:$maxport" -j $TABLE
-    $IPTABLES -t filter -A FORWARD -i "$iface" -p udp --dport "$minport:$maxport" -j $TABLE
+    $IPTABLES -t filter -I FORWARD -i "$iface" -m conntrack --ctstate DNAT -j $TABLE
 }
 
 ipt_act () {
